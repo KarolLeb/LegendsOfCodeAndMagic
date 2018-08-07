@@ -1,3 +1,3 @@
-CodinGame 
+CodinGame
 
-LegendsOfCodeAndMagic
+Legends of Code and Magic
