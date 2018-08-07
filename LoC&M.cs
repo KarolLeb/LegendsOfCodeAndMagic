@@ -33,12 +33,14 @@ public class PlayerStats {
 public class Card {
     public int cardNumber;
     public int instanceId;
-    public int location; // -1:opponentBoard, 0:playersHand, 1:playersBoard
+    // -1:opponentBoard, 0:playersHand, 1:playersBoard
+    public int location;
     public int cardType;
     public int cost;
     public int attack;
     public int defense;
-    public string abilities; // B:Breakthrough, C:Charge, D:Drain, G:Guard, L:Lethal, W:Ward
+    // B:Breakthrough, C:Charge, D:Drain, G:Guard, L:Lethal, W:Ward
+    public string abilities;
     public int myHealthChange;
     public int opponentHealthChange;
     public int cardDraw;
