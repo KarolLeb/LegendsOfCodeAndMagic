@@ -6,49 +6,35 @@ using System.Linq;
 using System.Text;
 
 public class PlayerStats {
-    public int Health;
-    public int Mana;
-    public int Deck;
-    public int Rune;
-    public int Hand;
+    public int Health { get; set; }
+    public int Mana { get; set; }
+    public int Deck { get; set; }
+    public int Rune { get; set; }
+    public int Hand { get; set; }
 
-    public PlayerStats (int health, int mana, int deck, int rune) {
-        this.Health = health;
-        this.Mana = mana;
-        this.Deck = deck;
-        this.Rune = rune;
-    }
-    public PlayerStats (int health, int mana, int deck, int rune, int hand) {
-        this.Health = health;
-        this.Mana = mana;
-        this.Deck = deck;
-        this.Rune = rune;
-        this.Hand = hand;
-    }
-    public void changeHealth (int value) {
-        Health += value;
+    public PlayerStats (string[] data) {
+        this.Health = int.Parse (data[0]);
+        this.Mana = int.Parse (data[1]);
+        this.Deck = int.Parse (data[2]);
+        this.Rune = int.Parse (data[3]);
     }
 }
 
 public class Card {
     public int cardNumber;
     public int instanceId;
-    // -1:opponentBoard, 0:playersHand, 1:playersBoard
-    public int location;
+    public int location;  // -1:opponentBoard, 0:playersHand, 1:playersBoard
     public int cardType;
     public int cost;
     public int attack;
     public int defense;
-    // B:Breakthrough, C:Charge, D:Drain, G:Guard, L:Lethal, W:Ward
-    public string abilities;
+    public Keywords abilities;
     public int myHealthChange;
-    public int opponentHealthChange;
+    public int oppHealthChange;
     public int cardDraw;
 
-    public bool canAttack;
-
     public Card (int cardNumber, int instanceId, int location, int cardType, int cost, int attack,
-        int defense, string abilities, int myHealthChange, int opponentHealthChange, int cardDraw, bool canAttack) {
+        int defense, Keywords abilities, int myHealthChange, int oppHealthChange, int cardDraw) {
         this.cardNumber = cardNumber;
         this.instanceId = instanceId;
         this.location = location;
@@ -56,12 +42,24 @@ public class Card {
         this.cost = cost;
         this.attack = attack;
         this.defense = defense;
-        this.abilities = abilities;
+        this.abilities = new Keywords (abilities);
         this.myHealthChange = myHealthChange;
-        this.opponentHealthChange = opponentHealthChange;
+        this.oppHealthChange = oppHealthChange;
         this.cardDraw = cardDraw;
+    }
 
-        this.canAttack = canAttack;
+    public Card (string[] data) {
+        this.cardNumber = int.Parse (data[0]);
+        this.instanceId = int.Parse (data[1]);
+        this.location = int.Parse (data[2]);
+        this.cardType = int.Parse (data[3]);
+        this.cost = int.Parse (data[4]);
+        this.attack = int.Parse (data[5]);
+        this.defense = int.Parse (data[6]);
+        this.abilities = new Keywords (data[7]);
+        this.myHealthChange = int.Parse (data[8]);
+        this.oppHealthChange = int.Parse (data[9]);
+        this.cardDraw = int.Parse (data[10]);
     }
 
     public bool canKillEnemy (Card enemy) {
@@ -98,6 +96,89 @@ public class Card {
     }
 }
 
+public class Unit {
+    public int id;
+    public int attack;
+    public int defense;
+    public int cost;
+    public int myHealthChange;
+    public int oppHealthChange;
+    public int cardDraw;
+    public Keywords abilities;
+
+    public bool canAttack;
+    public bool hasAttacked;
+
+    public Card baseCard;
+
+    public Unit (Unit creature) {
+        this.id = creature.id;
+        this.cost = creature.cost;
+        this.attack = creature.attack;
+        this.defense = creature.defense;
+        this.abilities = new Keywords (creature.abilities);
+        baseCard = creature.baseCard;
+        this.canAttack = creature.canAttack;
+        this.hasAttacked = creature.hasAttacked;
+    }
+
+    public Unit (Card card) {
+        this.id = card.instanceId;
+        this.attack = card.attack;
+        this.defense = card.defense;
+        this.abilities = new Keywords (card.abilities);
+        this.canAttack = this.abilities.hasCharge;
+        this.cost = card.cost;
+        this.myHealthChange = card.myHealthChange;
+        this.oppHealthChange = card.oppHealthChange;
+        this.cardDraw = card.cardDraw;
+        baseCard = card;
+    }
+}
+
+public class Keywords {
+
+    public bool hasBreakthrough;
+    public bool hasCharge;
+    public bool hasDrain;
+    public bool hasGuard;
+    public bool hasLethal;
+    public bool hasWard;
+
+    public bool hasAnyKeyword () {
+        return hasBreakthrough || hasCharge || hasDrain || hasGuard || hasLethal || hasWard;
+    }
+
+    public Keywords (string data) {
+        hasBreakthrough = data[0] == 'B';
+        hasCharge = data[1] == 'C';
+        hasDrain = data[2] == 'D';
+        hasGuard = data[3] == 'G';
+        hasLethal = data[4] == 'L';
+        hasWard = data[5] == 'W';
+    }
+
+    public Keywords (Keywords keywords) {
+        hasBreakthrough = keywords.hasBreakthrough;
+        hasCharge = keywords.hasCharge;
+        hasDrain = keywords.hasDrain;
+        hasGuard = keywords.hasGuard;
+        hasLethal = keywords.hasLethal;
+        hasWard = keywords.hasWard;
+    }
+
+    public string toString () {
+        string toS = "";
+        toS += (hasBreakthrough ? 'B' : '-');
+        toS += (hasCharge ? 'C' : '-');
+        toS += (hasDrain ? 'D' : '-');
+        toS += (hasGuard ? 'G' : '-');
+        toS += (hasLethal ? 'L' : '-');
+        toS += (hasWard ? 'W' : '-');
+        return toS;
+    }
+}
+
 public class Actions {
     public bool connected;
     public float rating;
@@ -110,19 +191,6 @@ public class Actions {
         rating = value;
     }
 }
-
-// public class ConnectedActions : Actions
-// {
-//     SimpleAction action;
-//     Actions actionRest;
-
-//     public ConnectedActions(SimpleAction action,Actions actionRest)
-//     {
-//         this.action = action;
-//         this.actionRest = actionRest;
-//         this.connected = true;
-//     }            
-// }
 
 public class SimpleAction : Actions {
     public int type; // 1:summon, 2:attack,     later items
@@ -137,6 +205,42 @@ public class SimpleAction : Actions {
     }
 }
 
+public class ActionResult {
+    public bool isValid;
+    public Unit attacker;
+    public Unit defender;
+    public int attackerHealthChange;
+    public int defenderHealthChange;
+    public int attackerAttackChange;
+    public int defenderAttackChange;
+    public int attackerDefenseChange;
+    public int defenderDefenseChange;
+    public bool attackerDied;
+    public bool defenderDied;
+
+    public ActionResult (bool isValid) {
+        this.isValid = isValid;
+        this.attacker = null;
+        this.defender = null;
+        this.attackerHealthChange = 0;
+        this.defenderHealthChange = 0;
+    }
+
+    public ActionResult (Unit attacker, Unit defender, bool attackerDied, bool defenderDied, int attackerHealthChange, int defenderHealthChange) {
+        this.isValid = true;
+        this.attacker = attacker;
+        this.defender = defender;
+        this.attackerDied = attackerDied;
+        this.defenderDied = defenderDied;
+        this.attackerHealthChange = attackerHealthChange;
+        this.defenderHealthChange = defenderHealthChange;
+    }
+
+    // public ActionResult (Unit attacker, Unit defender, int healthGain, int healthTaken) {
+    //     ActionResult (attacker, defender, false, false, healthGain, healthTaken);
+    // }
+}
+
 public static class Globals {
     public const Int32 maxBoard = 6;
     public const int maxHand = 8;
@@ -149,40 +253,35 @@ class Player {
     static void Main (string[] args) {
         string[] inputs;
 
-        //playersData
         PlayerStats player;
         PlayerStats opponent;
 
         while (true) {
             string actions = "";
 
-            inputs = Console.ReadLine ().Split (' ');
-            player = new PlayerStats (int.Parse (inputs[0]), int.Parse (inputs[1]), int.Parse (inputs[2]), int.Parse (inputs[3]));
+            inputs = Console.ReadLine ().Split ();
+            player = new PlayerStats (inputs);
 
-            inputs = Console.ReadLine ().Split (' ');
-            opponent = new PlayerStats (int.Parse (inputs[0]), int.Parse (inputs[1]), int.Parse (inputs[2]), int.Parse (inputs[3]), int.Parse (Console.ReadLine ()));
+            inputs = Console.ReadLine ().Split ();
+            opponent = new PlayerStats (inputs);
+            opponent.Hand = int.Parse (Console.ReadLine ());
 
             int cardCount = int.Parse (Console.ReadLine ());
-
-            // needed separation?
-            // queue?
-            // List<Card> PlayerHand = new List<Card>();
-            // List<Card> PlayerBoard = new List<Card>();
-            // List<Card> OpponentBoard = new List<Card>();
 
             Queue PlayerHand = new Queue ();
             Queue PlayerBoard = new Queue ();
             Queue OpponentBoard = new Queue ();
 
             if (player.Mana == 0) {
-                inputs = Console.ReadLine ().Split (' ');
-                Card card1 = new Card (int.Parse (inputs[0]), int.Parse (inputs[1]), int.Parse (inputs[2]), int.Parse (inputs[3]), int.Parse (inputs[4]), int.Parse (inputs[5]), int.Parse (inputs[6]), inputs[7], int.Parse (inputs[8]), int.Parse (inputs[9]), int.Parse (inputs[10]), false);
 
-                inputs = Console.ReadLine ().Split (' ');
-                Card card2 = new Card (int.Parse (inputs[0]), int.Parse (inputs[1]), int.Parse (inputs[2]), int.Parse (inputs[3]), int.Parse (inputs[4]), int.Parse (inputs[5]), int.Parse (inputs[6]), inputs[7], int.Parse (inputs[8]), int.Parse (inputs[9]), int.Parse (inputs[10]), false);
+                inputs = Console.ReadLine ().Split ();
+                Card card1 = new Card (inputs);
 
-                inputs = Console.ReadLine ().Split (' ');
-                Card card3 = new Card (int.Parse (inputs[0]), int.Parse (inputs[1]), int.Parse (inputs[2]), int.Parse (inputs[3]), int.Parse (inputs[4]), int.Parse (inputs[5]), int.Parse (inputs[6]), inputs[7], int.Parse (inputs[8]), int.Parse (inputs[9]), int.Parse (inputs[10]), false);
+                inputs = Console.ReadLine ().Split ();
+                Card card2 = new Card (inputs);
+
+                inputs = Console.ReadLine ().Split ();
+                Card card3 = new Card (inputs);
 
                 EvalPick (card1, card2, card3);
             } else {
@@ -195,20 +294,20 @@ class Player {
                     int cost = int.Parse (inputs[4]);
                     int attack = int.Parse (inputs[5]);
                     int defense = int.Parse (inputs[6]);
-                    string abilities = inputs[7];
+                    Keywords abilities = new Keywords (inputs[7]);
                     int myHealthChange = int.Parse (inputs[8]);
-                    int opponentHealthChange = int.Parse (inputs[9]);
+                    int oppHealthChange = int.Parse (inputs[9]);
                     int cardDraw = int.Parse (inputs[10]);
 
                     switch (location) {
                         case -1:
-                            OpponentBoard.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, opponentHealthChange, cardDraw, false));
+                            OpponentBoard.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, oppHealthChange, cardDraw));
                             break;
                         case 0:
-                            PlayerHand.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, opponentHealthChange, cardDraw, false));
+                            PlayerHand.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, oppHealthChange, cardDraw));
                             break;
                         case 1:
-                            PlayerBoard.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, opponentHealthChange, cardDraw, true));
+                            PlayerBoard.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, oppHealthChange, cardDraw));
                             break;
                         default:
                             Console.Error.WriteLine ("Data loading error #1");
