@@ -6,236 +6,232 @@ using System.Linq;
 using System.Text;
 
 public class PlayerStats {
-    public int Health { get; set; }
-    public int Mana { get; set; }
-    public int Deck { get; set; }
-    public int Rune { get; set; }
-    public int Hand { get; set; }
+    public int Health { get; protected set; }
+    public int Mana { get; protected set; }
+    public int Deck { get; protected set; }
+    public int Rune { get; protected set; }
+    public int Hand { get; protected set; }
 
     public PlayerStats (string[] data) {
-        this.Health = int.Parse (data[0]);
-        this.Mana = int.Parse (data[1]);
-        this.Deck = int.Parse (data[2]);
-        this.Rune = int.Parse (data[3]);
+        Health = int.Parse (data[0]);
+        Mana = int.Parse (data[1]);
+        Deck = int.Parse (data[2]);
+        Rune = int.Parse (data[3]);
+    }
+    public void setHand (int value) {
+        Hand = value;
     }
 }
 
 public class Card {
-    public int cardNumber;
-    public int instanceId;
-    public int location;  // -1:opponentBoard, 0:playersHand, 1:playersBoard
-    public int cardType;
-    public int cost;
-    public int attack;
-    public int defense;
-    public Keywords abilities;
-    public int myHealthChange;
-    public int oppHealthChange;
-    public int cardDraw;
+    public int CardNumber { get; protected set; }
+    public int Id { get; protected set; }
+    public int Location { get; set; } // -1:opponentBoard, 0:playersHand, 1:playe protectedrsBoard
+    public int CardType { get; protected set; }
+    public int Cost { get; protected set; }
+    public int Attack { get; protected set; }
+    public int Defense { get; protected set; }
+    public int MyHealthChange { get; protected set; }
+    public int OppHealthChange { get; protected set; }
+    public int CardDraw { get; protected set; }
+    public Keywords Abilities;
 
     public Card (int cardNumber, int instanceId, int location, int cardType, int cost, int attack,
         int defense, Keywords abilities, int myHealthChange, int oppHealthChange, int cardDraw) {
-        this.cardNumber = cardNumber;
-        this.instanceId = instanceId;
-        this.location = location;
-        this.cardType = cardType;
-        this.cost = cost;
-        this.attack = attack;
-        this.defense = defense;
-        this.abilities = new Keywords (abilities);
-        this.myHealthChange = myHealthChange;
-        this.oppHealthChange = oppHealthChange;
-        this.cardDraw = cardDraw;
+        CardNumber = cardNumber;
+        Id = instanceId;
+        Location = location;
+        CardType = cardType;
+        Cost = cost;
+        Attack = attack;
+        Defense = defense;
+        Abilities = new Keywords (abilities);
+        MyHealthChange = myHealthChange;
+        OppHealthChange = oppHealthChange;
+        CardDraw = cardDraw;
     }
 
     public Card (string[] data) {
-        this.cardNumber = int.Parse (data[0]);
-        this.instanceId = int.Parse (data[1]);
-        this.location = int.Parse (data[2]);
-        this.cardType = int.Parse (data[3]);
-        this.cost = int.Parse (data[4]);
-        this.attack = int.Parse (data[5]);
-        this.defense = int.Parse (data[6]);
-        this.abilities = new Keywords (data[7]);
-        this.myHealthChange = int.Parse (data[8]);
-        this.oppHealthChange = int.Parse (data[9]);
-        this.cardDraw = int.Parse (data[10]);
+        CardNumber = int.Parse (data[0]);
+        Id = int.Parse (data[1]);
+        Location = int.Parse (data[2]);
+        CardType = int.Parse (data[3]);
+        Cost = int.Parse (data[4]);
+        Attack = int.Parse (data[5]);
+        Defense = int.Parse (data[6]);
+        Abilities = new Keywords (data[7]);
+        MyHealthChange = int.Parse (data[8]);
+        OppHealthChange = int.Parse (data[9]);
+        CardDraw = int.Parse (data[10]);
+    }
+}
+
+public class Unit {
+    public int Id { get; protected set; }
+    public int Attack { get; protected set; }
+    public int Defense { get; protected set; }
+    public int Cost { get; protected set; }
+    public int MyHealthChange { get; protected set; }
+    public int OppHealthChange { get; protected set; }
+    public int CardDraw { get; protected set; }
+    public bool CanAttack { get; protected set; }
+    public bool HasAttacked { get; protected set; }
+    public Keywords Abilities;
+    public Card BaseCard;
+
+    public Unit (Unit creature) {
+        Id = creature.Id;
+        Attack = creature.Attack;
+        Defense = creature.Defense;
+        Cost = creature.Cost;
+        CanAttack = creature.CanAttack;
+        HasAttacked = creature.HasAttacked;
+        Abilities = new Keywords (creature.Abilities);
+        BaseCard = creature.BaseCard;
     }
 
-    public bool canKillEnemy (Card enemy) {
-        if (enemy.defense <= this.attack) {
+    public Unit (Card card) {
+        Id = card.Id;
+        Attack = card.Attack;
+        Defense = card.Defense;
+        Cost = card.Cost;
+        CanAttack = Abilities.HasCharge;
+        MyHealthChange = card.MyHealthChange;
+        OppHealthChange = card.OppHealthChange;
+        CardDraw = card.CardDraw;
+        Abilities = new Keywords (card.Abilities);
+        BaseCard = card;
+    }
+    public bool canKillEnemy (Unit enemy) {
+        if (enemy.Defense <= this.Attack) {
             return true;
         }
         return false;
     }
 
-    public bool survivesTrade (Card enemy) {
-        if (enemy.attack < this.defense) {
+    public bool survivesTrade (Unit enemy) {
+        if (enemy.Attack < this.Defense) {
             return true;
         }
         return false;
     }
 
-    public bool myValuableTrade (Card enemy) {
+    public bool myValuableTrade (Unit enemy) {
         if (this.canKillEnemy (enemy) && this.survivesTrade (enemy)) {
             return true;
         }
         return false;
     }
 
-    public bool enemyValuableTrade (Card enemy) {
+    public bool enemyValuableTrade (Unit enemy) {
         if (enemy.canKillEnemy (this) && enemy.survivesTrade (this)) {
             return true;
         }
         return false;
     }
 
-    public Card enemyAfterTrade (Card enemy) {
-        enemy.defense -= this.attack;
+    public Unit enemyAfterTrade (Unit enemy) {
+        enemy.Defense -= this.Attack;
         return enemy;
-    }
-}
-
-public class Unit {
-    public int id;
-    public int attack;
-    public int defense;
-    public int cost;
-    public int myHealthChange;
-    public int oppHealthChange;
-    public int cardDraw;
-    public Keywords abilities;
-
-    public bool canAttack;
-    public bool hasAttacked;
-
-    public Card baseCard;
-
-    public Unit (Unit creature) {
-        this.id = creature.id;
-        this.cost = creature.cost;
-        this.attack = creature.attack;
-        this.defense = creature.defense;
-        this.abilities = new Keywords (creature.abilities);
-        baseCard = creature.baseCard;
-        this.canAttack = creature.canAttack;
-        this.hasAttacked = creature.hasAttacked;
-    }
-
-    public Unit (Card card) {
-        this.id = card.instanceId;
-        this.attack = card.attack;
-        this.defense = card.defense;
-        this.abilities = new Keywords (card.abilities);
-        this.canAttack = this.abilities.hasCharge;
-        this.cost = card.cost;
-        this.myHealthChange = card.myHealthChange;
-        this.oppHealthChange = card.oppHealthChange;
-        this.cardDraw = card.cardDraw;
-        baseCard = card;
     }
 }
 
 public class Keywords {
 
-    public bool hasBreakthrough;
-    public bool hasCharge;
-    public bool hasDrain;
-    public bool hasGuard;
-    public bool hasLethal;
-    public bool hasWard;
+    public bool HasBreakthrough { get; protected set; }
+    public bool HasCharge { get; protected set; }
+    public bool HasDrain { get; protected set; }
+    public bool HasGuard { get; protected set; }
+    public bool HasLethal { get; protected set; }
+    public bool HasWard { get; protected set; }
 
     public bool hasAnyKeyword () {
-        return hasBreakthrough || hasCharge || hasDrain || hasGuard || hasLethal || hasWard;
+        return HasBreakthrough || HasCharge || HasDrain || HasGuard || HasLethal || HasWard;
     }
 
     public Keywords (string data) {
-        hasBreakthrough = data[0] == 'B';
-        hasCharge = data[1] == 'C';
-        hasDrain = data[2] == 'D';
-        hasGuard = data[3] == 'G';
-        hasLethal = data[4] == 'L';
-        hasWard = data[5] == 'W';
+        HasBreakthrough = data[0] == 'B';
+        HasCharge = data[1] == 'C';
+        HasDrain = data[2] == 'D';
+        HasGuard = data[3] == 'G';
+        HasLethal = data[4] == 'L';
+        HasWard = data[5] == 'W';
     }
 
     public Keywords (Keywords keywords) {
-        hasBreakthrough = keywords.hasBreakthrough;
-        hasCharge = keywords.hasCharge;
-        hasDrain = keywords.hasDrain;
-        hasGuard = keywords.hasGuard;
-        hasLethal = keywords.hasLethal;
-        hasWard = keywords.hasWard;
+        HasBreakthrough = keywords.HasBreakthrough;
+        HasCharge = keywords.HasCharge;
+        HasDrain = keywords.HasDrain;
+        HasGuard = keywords.HasGuard;
+        HasLethal = keywords.HasLethal;
+        HasWard = keywords.HasWard;
     }
 
     public string toString () {
         string toS = "";
-        toS += (hasBreakthrough ? 'B' : '-');
-        toS += (hasCharge ? 'C' : '-');
-        toS += (hasDrain ? 'D' : '-');
-        toS += (hasGuard ? 'G' : '-');
-        toS += (hasLethal ? 'L' : '-');
-        toS += (hasWard ? 'W' : '-');
+        toS += (HasBreakthrough ? 'B' : '-');
+        toS += (HasCharge ? 'C' : '-');
+        toS += (HasDrain ? 'D' : '-');
+        toS += (HasGuard ? 'G' : '-');
+        toS += (HasLethal ? 'L' : '-');
+        toS += (HasWard ? 'W' : '-');
         return toS;
     }
 }
 
-public class Actions {
-    public bool connected;
-    public float rating;
+public class Action {
+    public float Rating { get; protected set; }
+    public int Type { get; protected set; }
+    public int Id1 { get; protected set; }
+    public int Id2 { get; protected set; }
+    public Card CardRef;
+    public Card TargetRef;
+    public ActionResult Result;
 
-    public Actions () {
-        rating = 0f;
+    public Actions (int type, int id1, int id2, Card cardref, card targetref) {
+        Rating = 0f;
+        Type = type;
+        Id1 = id1;
+        Id2 = id2;
+        CardRef = cardref;
+        TargetRef = targetref;
     }
 
     public void setRating (float value) {
-        rating = value;
-    }
-}
-
-public class SimpleAction : Actions {
-    public int type; // 1:summon, 2:attack,     later items
-    public Card cardId;
-    public Card targetId; // used in attack
-
-    public SimpleAction (int type, Card cardId, Card targetId) {
-        this.connected = false;
-        this.type = type;
-        this.cardId = cardId;
-        this.targetId = targetId;
+        Rating = value;
     }
 }
 
 public class ActionResult {
-    public bool isValid;
-    public Unit attacker;
-    public Unit defender;
-    public int attackerHealthChange;
-    public int defenderHealthChange;
-    public int attackerAttackChange;
-    public int defenderAttackChange;
-    public int attackerDefenseChange;
-    public int defenderDefenseChange;
-    public bool attackerDied;
-    public bool defenderDied;
+    public bool IsValid { get; protected set; }
+    public Unit Attacker;
+    public Unit Defender;
+    public int AttackerHealthChange { get; protected set; }
+    public int DefenderHealthChange { get; protected set; }
+    public int AttackerAttackChange { get; protected set; }
+    public int DefenderAttackChange { get; protected set; }
+    public int AttackerDefenseChange { get; protected set; }
+    public int DefenderDefenseChange { get; protected set; }
+    public bool AttackerDied { get; protected set; }
+    public bool DefenderDied { get; protected set; }
 
     public ActionResult (bool isValid) {
-        this.isValid = isValid;
-        this.attacker = null;
-        this.defender = null;
-        this.attackerHealthChange = 0;
-        this.defenderHealthChange = 0;
+        IsValid = isValid;
+        Attacker = null;
+        Defender = null;
+        AttackerHealthChange = 0;
+        DefenderHealthChange = 0;
     }
 
     public ActionResult (Unit attacker, Unit defender, bool attackerDied, bool defenderDied, int attackerHealthChange, int defenderHealthChange) {
-        this.isValid = true;
-        this.attacker = attacker;
-        this.defender = defender;
-        this.attackerDied = attackerDied;
-        this.defenderDied = defenderDied;
-        this.attackerHealthChange = attackerHealthChange;
-        this.defenderHealthChange = defenderHealthChange;
+        IsValid = true;
+        Attacker = attacker;
+        Defender = defender;
+        AttackerDied = attackerDied;
+        DefenderDied = defenderDied;
+        AttackerHealthChange = attackerHealthChange;
+        DefenderHealthChange = defenderHealthChange;
     }
-
     // public ActionResult (Unit attacker, Unit defender, int healthGain, int healthTaken) {
     //     ActionResult (attacker, defender, false, false, healthGain, healthTaken);
     // }
@@ -259,12 +255,12 @@ class Player {
         while (true) {
             string actions = "";
 
-            inputs = Console.ReadLine ().Split ();
-            player = new PlayerStats (inputs);
+            // inputs = ;
+            player = new PlayerStats (Console.ReadLine ().Split (' '));
 
-            inputs = Console.ReadLine ().Split ();
-            opponent = new PlayerStats (inputs);
-            opponent.Hand = int.Parse (Console.ReadLine ());
+            // inputs = Console.ReadLine ().Split (' ');
+            opponent = new PlayerStats (Console.ReadLine ().Split (' '));
+            opponent.setHand (int.Parse (Console.ReadLine ()));
 
             int cardCount = int.Parse (Console.ReadLine ());
 
@@ -274,40 +270,30 @@ class Player {
 
             if (player.Mana == 0) {
 
-                inputs = Console.ReadLine ().Split ();
-                Card card1 = new Card (inputs);
+                // inputs = Console.ReadLine ().Split (' ');
+                Card card1 = new Card (Console.ReadLine ().Split (' '));
 
-                inputs = Console.ReadLine ().Split ();
-                Card card2 = new Card (inputs);
+                // inputs = Console.ReadLine ().Split (' ');
+                Card card2 = new Card (Console.ReadLine ().Split (' '));
 
-                inputs = Console.ReadLine ().Split ();
-                Card card3 = new Card (inputs);
+                // inputs = Console.ReadLine ().Split (' ');
+                Card card3 = new Card (Console.ReadLine ().Split (' '));
 
                 EvalPick (card1, card2, card3);
             } else {
                 for (int i = 0; i < cardCount; i++) {
-                    inputs = Console.ReadLine ().Split (' ');
-                    int cardNumber = int.Parse (inputs[0]);
-                    int instanceId = int.Parse (inputs[1]);
-                    int location = int.Parse (inputs[2]);
-                    int cardType = int.Parse (inputs[3]);
-                    int cost = int.Parse (inputs[4]);
-                    int attack = int.Parse (inputs[5]);
-                    int defense = int.Parse (inputs[6]);
-                    Keywords abilities = new Keywords (inputs[7]);
-                    int myHealthChange = int.Parse (inputs[8]);
-                    int oppHealthChange = int.Parse (inputs[9]);
-                    int cardDraw = int.Parse (inputs[10]);
+                    // inputs = Console.ReadLine ().Split (' ');
+                    Card card = new Card (Console.ReadLine ().Split (' '));
 
-                    switch (location) {
+                    switch (card.Location) {
                         case -1:
-                            OpponentBoard.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, oppHealthChange, cardDraw));
+                            OpponentBoard.Enqueue (card);
                             break;
                         case 0:
-                            PlayerHand.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, oppHealthChange, cardDraw));
+                            PlayerHand.Enqueue (card);
                             break;
                         case 1:
-                            PlayerBoard.Enqueue (new Card (cardNumber, instanceId, location, cardType, cost, attack, defense, abilities, myHealthChange, oppHealthChange, cardDraw));
+                            PlayerBoard.Enqueue (card);
                             break;
                         default:
                             Console.Error.WriteLine ("Data loading error #1");
@@ -322,7 +308,7 @@ class Player {
     static Queue LegalizeHand (Queue cards, PlayerStats player) {
         Queue LegalHand = new Queue ();
         foreach (Card card in cards) {
-            if (card.cost <= player.Mana) {
+            if (card.Cost <= player.Mana) {
                 LegalHand.Enqueue (card);
             }
         }
@@ -331,7 +317,7 @@ class Player {
     static Queue LegalizeMyBoard (Queue cards, PlayerStats player) {
         Queue LegalBoard = new Queue ();
         foreach (Card card in cards) {
-            if (card.canAttack && card.defense > 0) {
+            if (card.CanAttack && card.Defense > 0) {
                 LegalBoard.Enqueue (card);
             }
         }
@@ -439,7 +425,7 @@ class Player {
                         command += "SUMMON " + action.cardId.instanceId;
                         break;
                     case 2:
-                        command += "ATTACK " + action.cardId.instanceId + " ";
+                        command += "ATTACK " + action.cardId.instanceId + ' ';
                         if (action.targetId == null) {
                             command += -1;
                         } else {
