@@ -1,3 +1,6 @@
+#define DEBUG
+// #undef DEBUG
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,18 +8,22 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+//todo: count cardDraw
+//todo: count runes
 public class PlayerStats {
     public int Health { get; set; }
     public int Mana { get; set; }
     public int Deck { get; set; }
-    public int Rune { get; set; } //todo
+    public int Rune { get; set; }
     public int Hand { get; set; }
+    public int NextTurnDraw { get; set; }
 
     public PlayerStats (string[] data) {
         this.Health = int.Parse (data[0]);
         this.Mana = int.Parse (data[1]);
         this.Deck = int.Parse (data[2]);
         this.Rune = int.Parse (data[3]);
+        this.NextTurnDraw = 1;
     }
     public void setHand (int value) {
         this.Hand = value;
@@ -27,10 +34,75 @@ public class CardDataBase {
     List<CardData> AllCards = new List<CardData> ();
 
     public CardDataBase () {
-        string RawData = "1;Slimer;0;1;2;1;------;1;0;0.2;Scuttler;0;1;1;2;------;0;-1;0.3;Beavrat;0;1;2;2;------;0;0;0.4;PlatedToad;0;2;1;5;------;0;0;0.5;GrimeGnasher;0;2;4;1;------;0;0;0.6;Murgling;0;2;3;2;------;0;0;0.7;RootkinSapling;0;2;2;2;-----W;0;0;0.8;Psyshroom;0;2;2;3;------;0;0;0.9;CorruptedBeavrat;0;3;3;4;------;0;0;0.10;CarnivorousBush;0;3;3;1;--D---;0;0;0.11;Snowsaur;0;3;5;2;------;0;0;0.12;Woodshroom;0;3;2;5;------;0;0;0.13;SwampTerror;0;4;5;3;------;1;-1;0.14;FangedLunger;0;4;9;1;------;0;0;0.15;PouncingFlailmouth;0;4;4;5;------;0;0;0.16;WranglerFish;0;4;6;2;------;0;0;0.17;AshWalker;0;4;4;5;------;0;0;0.18;AcidGolem;0;4;7;4;------;0;0;0.19;Foulbeast;0;5;5;6;------;0;0;0.20;HedgeDemon;0;5;8;2;------;0;0;0.21;CrestedScuttler;0;5;6;5;------;0;0;0.22;Sigbovak;0;6;7;5;------;0;0;0.23;TitanCaveHog;0;7;8;8;------;0;0;0.24;ExplodingSkitterbug;0;1;1;1;------;0;-1;0.25;SpineyChompleaf;0;2;3;1;------;-2;-2;0.26;RazorCrab;0;2;3;2;------;0;-1;0.27;NutGatherer;0;2;2;2;------;2;0;0.28;InfestedToad;0;2;1;2;------;0;0;1.29;SteelplumeNestling;0;2;2;1;------;0;0;1.30;VenomousBogHopper;0;3;4;2;------;0;-2;0.31;WoodlandHunter;0;3;3;1;------;0;-1;0.32;Sandsplat;0;3;3;2;------;0;0;1.33;Chameleskulk;0;4;4;3;------;0;0;1.34;EldritchCyclops;0;5;3;5;------;0;0;1.35;Snail-eyedHulker;0;6;5;2;B-----;0;0;1.36;PossessedSkull;0;6;4;4;------;0;0;2.37;EldritchMulticlops;0;6;5;7;------;0;0;1.38;Imp;0;1;1;3;--D---;0;0;0.39;VoraciousImp;0;1;2;1;--D---;0;0;0.40;RockGobbler;0;3;2;3;--DG--;0;0;0.41;BlizzardDemon;0;3;2;2;-CD---;0;0;0.42;FlyingLeech;0;4;4;2;--D---;0;0;0.43;ScreechingNightmare;0;6;5;5;--D---;0;0;0.44;Deathstalker;0;6;3;7;--D-L-;0;0;0.45;NightHowler;0;6;6;5;B-D---;-3;0;0.46;SoulDevourer;0;9;7;7;--D---;0;0;0.47;Gnipper;0;2;1;5;--D---;0;0;0.48;VenomHedgehog;0;1;1;1;----L-;0;0;0.49;ShinyProwler;0;2;1;2;---GL-;0;0;0.50;PuffBiter;0;3;3;2;----L-;0;0;0.51;EliteBilespitter;0;4;3;5;----L-;0;0;0.52;Bilespitter;0;4;2;4;----L-;0;0;0.53;PossessedAbomination;0;4;1;1;-C--L-;0;0;0.54;ShadowBiter;0;3;2;2;----L-;0;0;0.55;HermitSlime;0;2;0;5;---G--;0;0;0.56;GiantLouse;0;4;2;7;------;0;0;0.57;Dream-Eater;0;4;1;8;------;0;0;0.58;DarkscalePredator;0;6;5;6;B-----;0;0;0.59;SeaGhost;0;7;7;7;------;1;-1;0.60;GritsuckTroll;0;7;4;8;------;0;0;0.61;AlphaTroll;0;9;10;10;------;0;0;0.62;MutantTroll;0;12;12;12;B--G--;0;0;0.63;RootkinDrone;0;2;0;4;---G-W;0;0;0.64;CoppershellTortoise;0;2;1;1;---G-W;0;0;0.65;SteelplumeDefender;0;2;2;2;-----W;0;0;0.66;StaringWickerbeast;0;5;5;1;-----W;0;0;0.67;FlailingHammerhead;0;6;5;5;-----W;0;-2;0.68;GiantSquid;0;6;7;5;-----W;0;0;0.69;ChargingBoarhound;0;3;4;4;B-----;0;0;0.70;Murglord;0;4;6;3;B-----;0;0;0.71;FlyingMurgling;0;4;3;2;BC----;0;0;0.72;ShufflingNightmare;0;4;5;3;B-----;0;0;0.73;BogBounder;0;4;4;4;B-----;4;0;0.74;Crusher;0;5;5;4;B--G--;0;0;0.75;TitanProwler;0;5;6;5;B-----;0;0;0.76;CrestedChomper;0;6;5;5;B-D---;0;0;0.77;LumberingGiant;0;7;7;7;B-----;0;0;0.78;Shambler;0;8;5;5;B-----;0;-5;0.79;ScarletColossus;0;8;8;8;B-----;0;0;0.80;CorpseGuzzler;0;8;8;8;B--G--;0;0;1.81;FlyingCorpseGuzzler;0;9;6;6;BC----;0;0;0.82;SlitheringNightmare;0;7;5;5;B-D--W;0;0;0.83;RestlessOwl;0;0;1;1;-C----;0;0;0.84;FighterTick;0;2;1;1;-CD--W;0;0;0.85;HeartlessCrow;0;3;2;3;-C----;0;0;0.86;CrazedNose-pincher;0;3;1;5;-C----;0;0;0.87;BloatDemon;0;4;2;5;-C-G--;0;0;0.88;AbyssNightmare;0;5;4;4;-C----;0;0;0.89;Boombeak;0;5;4;1;-C----;2;0;0.90;EldritchSwooper;0;8;5;5;-C----;0;0;0.91;Flumpy;0;0;1;2;---G--;0;1;0.92;Wurm;0;1;0;1;---G--;2;0;0.93;Spinekid;0;1;2;1;---G--;0;0;0.94;RootkinDefender;0;2;1;4;---G--;0;0;0.95;Wildum;0;2;2;3;---G--;0;0;0.96;PrairieProtector;0;2;3;2;---G--;0;0;0.97;Turta;0;3;3;3;---G--;0;0;0.98;LillyHopper;0;3;2;4;---G--;0;0;0.99;CaveCrab;0;3;2;5;---G--;0;0;0.100;Stalagopod;0;3;1;6;---G--;0;0;0.101;Engulfer;0;4;3;4;---G--;0;0;0.102;MoleDemon;0;4;3;3;---G--;0;-1;0.103;MutatingRootkin;0;4;3;6;---G--;0;0;0.104;DeepwaterShellcrab;0;4;4;4;---G--;0;0;0.105;KingShellcrab;0;5;4;6;---G--;0;0;0.106;Far-reachingNightmare;0;5;5;5;---G--;0;0;0.107;WorkerShellcrab;0;5;3;3;---G--;3;0;0.108;RootkinElder;0;5;2;6;---G--;0;0;0.109;ElderEngulfer;0;5;5;6;------;0;0;0.110;Gargoyle;0;5;0;9;---G--;0;0;0.111;TurtaKnight;0;6;6;6;---G--;0;0;0.112;RootkinLeader;0;6;4;7;---G--;0;0;0.113;TamedBilespitter;0;6;2;4;---G--;4;0;0.114;Gargantua;0;7;7;7;---G--;0;0;0.115;RootkinWarchief;0;8;5;5;---G-W;0;0;0.116;EmperorNightmare;0;12;8;8;BCDGLW;0;0;0.117;Protein;1;1;1;1;B-----;0;0;0.118;RoyalHelm;1;0;0;3;------;0;0;0.119;SerratedShield;1;1;1;2;------;0;0;0.120;Venomfruit;1;2;1;0;----L-;0;0;0.121;EnchantedHat;1;2;0;3;------;0;0;1.122;BolsteringBread;1;2;1;3;---G--;0;0;0.123;Wristguards;1;2;4;0;------;0;0;0.124;BloodGrapes;1;3;2;1;--D---;0;0;0.125;HealthyVeggies;1;3;1;4;------;0;0;0.126;HeavyShield;1;3;2;3;------;0;0;0.127;ImperialHelm;1;3;0;6;------;0;0;0.128;EnchantedCloth;1;4;4;3;------;0;0;0.129;EnchantedLeather;1;4;2;5;------;0;0;0.130;HelmofRemedy;1;4;0;6;------;4;0;0.131;HeavyGauntlet;1;4;4;1;------;0;0;0.132;HighProtein;1;5;3;3;B-----;0;0;0.133;PieofPower;1;5;4;0;-----W;0;0;0.134;LightTheWay;1;4;2;2;------;0;0;1.135;ImperialArmour;1;6;5;5;------;0;0;0.136;Buckler;1;0;1;1;------;0;0;0.137;Ward;1;2;0;0;-----W;0;0;0.138;GrowHorns;1;2;0;0;---G--;0;0;1.139;GrowStingers;1;4;0;0;----LW;0;0;0.140;GrowWings;1;2;0;0;-C----;0;0;0.141;ThrowingKnife;2;0;-1;-1;------;0;0;0.142;StaffofSuppression;2;0;0;0;BCDGLW;0;0;0.143;PierceArmour;2;0;0;0;---G--;0;0;0.144;RuneAxe;2;1;0;-2;------;0;0;0.145;CursedSword;2;3;-2;-2;------;0;0;0.146;CursedScimitar;2;4;-2;-2;------;0;-2;0.147;QuickShot;2;2;0;-1;------;0;0;1.148;HelmCrusher;2;2;0;-2;BCDGLW;0;0;0.149;RootkinRitual;2;3;0;0;BCDGLW;0;0;1.150;ThrowingAxe;2;2;0;-3;------;0;0;0.151;Decimate;2;5;0;-99;BCDGLW;0;0;0.152;MightyThrowingAxe;2;7;0;-7;------;0;0;1.153;HealingPotion;2;2;0;0;------;5;0;0.154;Poison;2;2;0;0;------;0;-2;1.155;ScrollofFirebolt;2;3;0;-3;------;0;-1;0.156;MajorLifeStealPotion;2;3;0;0;------;3;-3;0.157;LifeSapDrop;2;3;0;-1;------;1;0;1.158;TomeofThunder;2;3;0;-4;------;0;0;0.159;VialofSoulDrain;2;4;0;-3;------;3;0;0.160;MinorLifeStealPotion;2;2;0;0;------;2;-2;0";
+        string RawData = "1;0;1;2;1;------;1;0;0.2;0;1;1;2;------;0;-1;0.3;0;1;2;2;------;0;0;0.4;0;2;1;5;------;0;0;0.5;0;2;4;1;------;0;0;0.6;0;2;3;2;------;0;0;0.7;0;2;2;2;-----W;0;0;0.8;0;2;2;3;------;0;0;0.9;0;3;3;4;------;0;0;0.10;0;3;3;1;--D---;0;0;0.11;0;3;5;2;------;0;0;0.12;0;3;2;5;------;0;0;0.13;0;4;5;3;------;1;-1;0.14;0;4;9;1;------;0;0;0.15;0;4;4;5;------;0;0;0.16;0;4;6;2;------;0;0;0.17;0;4;4;5;------;0;0;0.18;0;4;7;4;------;0;0;0.19;0;5;5;6;------;0;0;0.20;0;5;8;2;------;0;0;0.21;0;5;6;5;------;0;0;0.22;0;6;7;5;------;0;0;0.23;0;7;8;8;------;0;0;0.24;0;1;1;1;------;0;-1;0.25;0;2;3;1;------;-2;-2;0.26;0;2;3;2;------;0;-1;0.27;0;2;2;2;------;2;0;0.28;0;2;1;2;------;0;0;1.29;0;2;2;1;------;0;0;1.30;0;3;4;2;------;0;-2;0.31;0;3;3;1;------;0;-1;0.32;0;3;3;2;------;0;0;1.33;0;4;4;3;------;0;0;1.34;0;5;3;5;------;0;0;1.35;0;6;5;2;B-----;0;0;1.36;0;6;4;4;------;0;0;2.37;0;6;5;7;------;0;0;1.38;0;1;1;3;--D---;0;0;0.39;0;1;2;1;--D---;0;0;0.40;0;3;2;3;--DG--;0;0;0.41;0;3;2;2;-CD---;0;0;0.42;0;4;4;2;--D---;0;0;0.43;0;6;5;5;--D---;0;0;0.44;0;6;3;7;--D-L-;0;0;0.45;0;6;6;5;B-D---;-3;0;0.46;0;9;7;7;--D---;0;0;0.47;0;2;1;5;--D---;0;0;0.48;0;1;1;1;----L-;0;0;0.49;0;2;1;2;---GL-;0;0;0.50;0;3;3;2;----L-;0;0;0.51;0;4;3;5;----L-;0;0;0.52;0;4;2;4;----L-;0;0;0.53;0;4;1;1;-C--L-;0;0;0.54;0;3;2;2;----L-;0;0;0.55;0;2;0;5;---G--;0;0;0.56;0;4;2;7;------;0;0;0.57;0;4;1;8;------;0;0;0.58;0;6;5;6;B-----;0;0;0.59;0;7;7;7;------;1;-1;0.60;0;7;4;8;------;0;0;0.61;0;9;10;10;------;0;0;0.62;0;12;12;12;B--G--;0;0;0.63;0;2;0;4;---G-W;0;0;0.64;0;2;1;1;---G-W;0;0;0.65;0;2;2;2;-----W;0;0;0.66;0;5;5;1;-----W;0;0;0.67;0;6;5;5;-----W;0;-2;0.68;0;6;7;5;-----W;0;0;0.69;0;3;4;4;B-----;0;0;0.70;0;4;6;3;B-----;0;0;0.71;0;4;3;2;BC----;0;0;0.72;0;4;5;3;B-----;0;0;0.73;0;4;4;4;B-----;4;0;0.74;0;5;5;4;B--G--;0;0;0.75;0;5;6;5;B-----;0;0;0.76;0;6;5;5;B-D---;0;0;0.77;0;7;7;7;B-----;0;0;0.78;0;8;5;5;B-----;0;-5;0.79;0;8;8;8;B-----;0;0;0.80;0;8;8;8;B--G--;0;0;1.81;0;9;6;6;BC----;0;0;0.82;0;7;5;5;B-D--W;0;0;0.83;0;0;1;1;-C----;0;0;0.84;0;2;1;1;-CD--W;0;0;0.85;0;3;2;3;-C----;0;0;0.86;0;3;1;5;-C----;0;0;0.87;0;4;2;5;-C-G--;0;0;0.88;0;5;4;4;-C----;0;0;0.89;0;5;4;1;-C----;2;0;0.90;0;8;5;5;-C----;0;0;0.91;0;0;1;2;---G--;0;1;0.92;0;1;0;1;---G--;2;0;0.93;0;1;2;1;---G--;0;0;0.94;0;2;1;4;---G--;0;0;0.95;0;2;2;3;---G--;0;0;0.96;0;2;3;2;---G--;0;0;0.97;0;3;3;3;---G--;0;0;0.98;0;3;2;4;---G--;0;0;0.99;0;3;2;5;---G--;0;0;0.100;0;3;1;6;---G--;0;0;0.101;0;4;3;4;---G--;0;0;0.102;0;4;3;3;---G--;0;-1;0.103;0;4;3;6;---G--;0;0;0.104;0;4;4;4;---G--;0;0;0.105;0;5;4;6;---G--;0;0;0.106;0;5;5;5;---G--;0;0;0.107;0;5;3;3;---G--;3;0;0.108;0;5;2;6;---G--;0;0;0.109;0;5;5;6;------;0;0;0.110;0;5;0;9;---G--;0;0;0.111;0;6;6;6;---G--;0;0;0.112;0;6;4;7;---G--;0;0;0.113;0;6;2;4;---G--;4;0;0.114;0;7;7;7;---G--;0;0;0.115;0;8;5;5;---G-W;0;0;0.116;0;12;8;8;BCDGLW;0;0;0.117;1;1;1;1;B-----;0;0;0.118;1;0;0;3;------;0;0;0.119;1;1;1;2;------;0;0;0.120;1;2;1;0;----L-;0;0;0.121;1;2;0;3;------;0;0;1.122;1;2;1;3;---G--;0;0;0.123;1;2;4;0;------;0;0;0.124;1;3;2;1;--D---;0;0;0.125;1;3;1;4;------;0;0;0.126;1;3;2;3;------;0;0;0.127;1;3;0;6;------;0;0;0.128;1;4;4;3;------;0;0;0.129;1;4;2;5;------;0;0;0.130;1;4;0;6;------;4;0;0.131;1;4;4;1;------;0;0;0.132;1;5;3;3;B-----;0;0;0.133;1;5;4;0;-----W;0;0;0.134;1;4;2;2;------;0;0;1.135;1;6;5;5;------;0;0;0.136;1;0;1;1;------;0;0;0.137;1;2;0;0;-----W;0;0;0.138;1;2;0;0;---G--;0;0;1.139;1;4;0;0;----LW;0;0;0.140;1;2;0;0;-C----;0;0;0.141;2;0;-1;-1;------;0;0;0.142;2;0;0;0;BCDGLW;0;0;0.143;2;0;0;0;---G--;0;0;0.144;2;1;0;-2;------;0;0;0.145;2;3;-2;-2;------;0;0;0.146;2;4;-2;-2;------;0;-2;0.147;2;2;0;-1;------;0;0;1.148;2;2;0;-2;BCDGLW;0;0;0.149;2;3;0;0;BCDGLW;0;0;1.150;2;2;0;-3;------;0;0;0.151;2;5;0;-99;BCDGLW;0;0;0.152;2;7;0;-7;------;0;0;1.153;2;2;0;0;------;5;0;0.154;2;2;0;0;------;0;-2;1.155;2;3;0;-3;------;0;-1;0.156;2;3;0;0;------;3;-3;0.157;2;3;0;-1;------;1;0;1.158;2;3;0;-4;------;0;0;0.159;2;4;0;-3;------;3;0;0.160;2;2;0;0;------;2;-2;0";
         string[] SlicedData = RawData.Split ('.');
         foreach (string data in SlicedData) {
             AllCards.Add (new CardData (data.Split (';')));
+        }
+    }
+}
+
+public class GameDataBase {
+    public List<Pick> DraftPicks; // holds certain pick
+    public List<int> Uncertain; // holds CardData.CardNumber enemy played
+    public Dictionary<int, int> GameCards; //holds card possible copies <CardData.CardNumber, Number>
+
+    public GameDataBase () {
+        DraftPicks = new List<Pick> ();
+        Uncertain = new List<int> ();
+        GameCards = new Dictionary<int, int> ();
+    }
+}
+
+public class Pick {
+    CardData MyPick;
+    CardData EnemyPick;
+    CardData card1;
+    CardData card2;
+    CardData card3;
+
+    public Pick (Dictionary<int, int> GameCards, CardData card1, CardData card2, CardData card3) {
+        this.card1 = card1;
+        this.card2 = card2;
+        this.card3 = card3;
+        if (GameCards.ContainsKey (card1.CardNumber)) {
+            GameCards[card1.CardNumber] = GameCards[card1.CardNumber]++;
+        } else {
+            GameCards.Add (card1.CardNumber, 1);
+        }
+        if (GameCards.ContainsKey (card2.CardNumber)) {
+            GameCards[card2.CardNumber] = GameCards[card2.CardNumber]++;
+        } else {
+            GameCards.Add (card2.CardNumber, 1);
+        }
+        if (GameCards.ContainsKey (card3.CardNumber)) {
+            GameCards[card3.CardNumber] = GameCards[card3.CardNumber]++;
+        } else {
+            GameCards.Add (card3.CardNumber, 1);
+        }
+        Eval ();
+    }
+
+    void Eval () {
+        int eval1 = 0;
+        int eval2 = 0;
+        int eval3 = 0;
+
+        if (card1.Type == 0) {
+            MyPick = card1;
+            Console.WriteLine ("PICK 0");
+
+        } else if (card2.Type == 0) {
+            MyPick = card2;
+            Console.WriteLine ("PICK 1");
+
+        } else if (card3.Type == 0) {
+            MyPick = card3;
+            Console.WriteLine ("PICK 2");
+
+        } else {
+            MyPick = card1;
+            Console.WriteLine ("PASS");
         }
     }
 }
@@ -48,29 +120,22 @@ public class CardData {
 
     public CardData (string[] data) {
         this.CardNumber = int.Parse (data[0]);
-        this.Type = int.Parse (data[2]);
-        this.Cost = int.Parse (data[3]);
-        this.Attack = int.Parse (data[4]);
-        this.Defense = int.Parse (data[5]);
-        this.Abilities = new Keywords (data[6]);
-        this.MyHealthChange = int.Parse (data[7]);
-        this.OppHealthChange = int.Parse (data[8]);
-        this.CardDraw = int.Parse (data[9]);
+        this.Type = int.Parse (data[1]);
+        this.Cost = int.Parse (data[2]);
+        this.Attack = int.Parse (data[3]);
+        this.Defense = int.Parse (data[4]);
+        this.Abilities = new Keywords (data[5]);
+        this.MyHealthChange = int.Parse (data[6]);
+        this.OppHealthChange = int.Parse (data[7]);
+        this.CardDraw = int.Parse (data[8]);
     }
+    public CardData () { }
 }
 
 public class Card : CardData {
-    public int CardNumber { get; set; }
+
     public int Id { get; set; }
     public int Location { get; set; } // -1:opponentBoard, 0:playersHand, 1:playersBoard
-    public int Type { get; set; } // 0:Creature, 1:Green, 2:Red, 3:Blue
-    public int Cost { get; set; }
-    public int Attack { get; set; }
-    public int Defense { get; set; }
-    public int MyHealthChange { get; set; }
-    public int OppHealthChange { get; set; }
-    public int CardDraw { get; set; }
-    public Keywords Abilities;
 
     public Card (string[] data) {
         this.CardNumber = int.Parse (data[0]);
@@ -91,10 +156,6 @@ public class Unit {
     public int Id { get; set; }
     public int Attack { get; set; }
     public int Defense { get; set; }
-    public int Cost { get; set; } //?
-    public int MyHealthChange { get; set; } //?
-    public int OppHealthChange { get; set; } //?
-    public int CardDraw { get; set; } //?
     public bool CanAttack { get; set; }
     public bool HasAttacked { get; set; }
     public Keywords Abilities;
@@ -104,7 +165,6 @@ public class Unit {
         this.Id = creature.Id;
         this.Attack = creature.Attack;
         this.Defense = creature.Defense;
-        this.Cost = creature.Cost;
         this.CanAttack = creature.CanAttack;
         this.HasAttacked = creature.HasAttacked;
         this.Abilities = new Keywords (creature.Abilities.toString ());
@@ -115,12 +175,8 @@ public class Unit {
         this.Id = card.Id;
         this.Attack = card.Attack;
         this.Defense = card.Defense;
-        this.Cost = card.Cost;
         this.CanAttack = card.Abilities.HasCharge;
         this.HasAttacked = false;
-        this.MyHealthChange = card.MyHealthChange;
-        this.OppHealthChange = card.OppHealthChange;
-        this.CardDraw = card.CardDraw;
         this.Abilities = new Keywords (card.Abilities.toString ());
         this.BaseCard = card;
     }
@@ -129,47 +185,10 @@ public class Unit {
         this.Id = card.Id;
         this.Attack = card.Attack;
         this.Defense = card.Defense;
-        this.Cost = card.Cost;
         this.CanAttack = CanAttack;
         this.HasAttacked = false;
-        this.MyHealthChange = card.MyHealthChange;
-        this.OppHealthChange = card.OppHealthChange;
-        this.CardDraw = card.CardDraw;
         this.Abilities = new Keywords (card.Abilities.toString ());
         this.BaseCard = card;
-    }
-
-    public bool canKillEnemy (Unit enemy) {
-        if (enemy.Defense <= this.Attack) {
-            return true;
-        }
-        return false;
-    }
-
-    public bool survivesTrade (Unit enemy) {
-        if (enemy.Attack < this.Defense) {
-            return true;
-        }
-        return false;
-    }
-
-    public bool myValuableTrade (Unit enemy) {
-        if (this.canKillEnemy (enemy) && this.survivesTrade (enemy)) {
-            return true;
-        }
-        return false;
-    }
-
-    public bool enemyValuableTrade (Unit enemy) {
-        if (enemy.canKillEnemy (this) && enemy.survivesTrade (this)) {
-            return true;
-        }
-        return false;
-    }
-
-    public Unit enemyAfterTrade (Unit enemy) {
-        enemy.Defense -= this.Attack;
-        return enemy;
     }
 }
 
@@ -248,7 +267,7 @@ public class Action {
     }
 
     //JUST LEAVE IT
-    public Action () { }
+    // public Action () { }
 
     // MAIN
     public Action (int Type, int Id1, int Id2, Unit UnitRef, Card CardRef, Unit TargetRef) {
@@ -258,7 +277,7 @@ public class Action {
         this.UnitRef = UnitRef;
         this.CardRef = CardRef;
         this.TargetRef = TargetRef;
-        this.IsValid = true;
+        this.IsValid = false;
     }
 
     public void setRating (float Rating) {
@@ -461,12 +480,13 @@ public static class Globals {
     public const Int32 maxBoard = 6;
     public const int maxHand = 8;
     public const int maxCardCost = 12;
-    public const bool debug = true;
+    // public const bool debug = true;
 }
 
 class Player {
     static void Main (string[] args) {
         CardDataBase DataBase = new CardDataBase ();
+        GameDataBase GameBase = new GameDataBase ();
 
         PlayerStats player;
         PlayerStats opponent;
@@ -485,16 +505,18 @@ class Player {
 
             if (player.Mana == 0) {
 
-                EvalPick (new Card (Console.ReadLine ().Split (' ')),
+                GameBase.DraftPicks.Add (new Pick (GameBase.GameCards,
                     new Card (Console.ReadLine ().Split (' ')),
-                    new Card (Console.ReadLine ().Split (' ')));
+                    new Card (Console.ReadLine ().Split (' ')),
+                    new Card (Console.ReadLine ().Split (' '))));
 
             } else {
                 for (int i = 0; i < cardCount; i++) {
 
                     Card card = new Card (Console.ReadLine ().Split (' '));
 
-                    if (Globals.debug) {
+#if (DEBUG) 
+                    {
                         if (card == null) {
                             Console.Error.WriteLine ("card.isNull:" + "true");
                         }
@@ -502,6 +524,7 @@ class Player {
                             Console.Error.WriteLine ("card.Abilities:" + "null");
                         }
                     }
+#endif
                     switch (card.Location) {
                         case -1:
                             OpponentBoard.Enqueue (new Unit (card, true));
@@ -531,6 +554,7 @@ class Player {
         }
         return LegalHand;
     }
+
     static Queue LegalizeMyBoard (Queue units, PlayerStats player) {
         Queue LegalBoard = new Queue ();
         foreach (Unit unit in units) {
@@ -540,6 +564,7 @@ class Player {
         }
         return LegalBoard;
     }
+
     static Queue LegalizeEnemyBoard (Queue units) {
         Queue LegalBoard = new Queue ();
         foreach (Unit unit in units) {
@@ -551,16 +576,18 @@ class Player {
     }
 
     static void ValidAction (Action action, Queue EnemyBoard, Queue MyBoard, Queue MyHand, PlayerStats player, PlayerStats opponent) {
+        bool IsValid = true;
         switch (action.Type) {
             case 1: // SUMMON
                 if (MyBoard.Count == Globals.maxBoard ||
                     player.Mana < action.CardRef.Cost) {
-                    action.setIsValid (false);
+                    IsValid = false;
                 }
                 break;
             case 2: // ATTACK
-                if (action.UnitRef.CanAttack == false) {
-                    action.setIsValid (false);
+                if (action.UnitRef.CanAttack == false ||
+                    action.UnitRef.HasAttacked == true) {
+                    IsValid = false;
                 }
                 bool enemyHasGuard = false;
                 foreach (Unit enemy in EnemyBoard) {
@@ -571,15 +598,15 @@ class Player {
                 }
                 if (enemyHasGuard) {
                     if (action.Id2 == -1) {
-                        action.setIsValid (false);
+                        IsValid = false;
                     } else if (action.TargetRef.Abilities.HasGuard == false) {
-                        action.setIsValid (false);
+                        IsValid = false;
                     }
                 }
                 break;
             case 3: // USE
                 if (player.Mana < action.CardRef.Cost) {
-                    action.setIsValid (false);
+                    IsValid = false;
                 }
                 break;
                 //todo
@@ -587,28 +614,7 @@ class Player {
                 Console.Error.WriteLine ("ValidAction error ##################1");
                 break;
         }
-    }
-
-    static void EvalPick (Card card1, Card card2, Card card3) {
-        int eval1 = 0;
-        int eval2 = 0;
-        int eval3 = 0;
-
-        // public Eval(){}
-        // public void Pick(){}
-
-        if (card1.Type == 0) {
-            Console.WriteLine ("PICK 0");
-
-        } else if (card2.Type == 0) {
-            Console.WriteLine ("PICK 1");
-
-        } else if (card3.Type == 0) {
-            Console.WriteLine ("PICK 2");
-
-        } else {
-            Console.WriteLine ("PASS");
-        }
+        action.setIsValid (IsValid);
     }
 
     static void PlayTurn (Queue LegalHand, Queue MyLegalBoard, Queue EnemyLegalBoard, PlayerStats player, PlayerStats opponent) {
@@ -620,24 +626,16 @@ class Player {
 
         do {
 
-            if (Globals.debug) {
-                Console.Error.WriteLine ("LegalBoard:" + MyLegalBoard.Count);
-            }
-
             PotencialActions = new List<Action> ();
-            LegalHand = LegalizeHand (LegalHand, player);
-            MyLegalBoard = LegalizeMyBoard (MyLegalBoard, player);
-            EnemyLegalBoard = LegalizeEnemyBoard (EnemyLegalBoard);
+            // LegalHand = LegalizeHand (LegalHand, player);
+            // MyLegalBoard = LegalizeMyBoard (MyLegalBoard, player);
+            // EnemyLegalBoard = LegalizeEnemyBoard (EnemyLegalBoard);
 
             foreach (Unit unit in MyLegalBoard) {
                 foreach (Unit enemy in EnemyLegalBoard) {
                     PotencialActions.Add (new Action (2, unit.Id, enemy.Id, unit, null, enemy));
                 }
                 PotencialActions.Add (new Action (2, unit.Id, -1, unit, null, null));
-            }
-
-            if (Globals.debug) {
-                Console.Error.WriteLine ("LegalHand:" + LegalHand.Count);
             }
 
             foreach (Card card in LegalHand) {
@@ -656,14 +654,9 @@ class Player {
                         foreach (Unit unit in EnemyLegalBoard) {
                             PotencialActions.Add (new Action (3, card.Id, unit.Id, null, card, unit));
                         }
-                    } else {
-                        PotencialActions.Add (new Action (3, card.Id, -1, null, card, null));
                     }
+                    PotencialActions.Add (new Action (3, card.Id, -1, null, card, null));
                 }
-            }
-
-            if (Globals.debug) {
-                Console.Error.WriteLine ("PotencialActions:" + PotencialActions.Count);
             }
 
             foreach (Action action in PotencialActions) {
@@ -682,7 +675,8 @@ class Player {
                 }
             }
 
-            if (Globals.debug) {
+#if (DEBUG) 
+            {
                 foreach (Action action in PotencialActions) {
                     if (action.IsValid) {
                         Console.Error.WriteLine ("----------");
@@ -693,31 +687,36 @@ class Player {
                     }
                 }
             }
-
+#endif
             if (PotencialActions.Count > 0) {
-                Action best = new Action ();
+                Action best = null;
                 foreach (Action action in PotencialActions) {
                     if (action.IsValid) {
                         best = action;
                         break;
                     }
                 }
-                foreach (Action action in PotencialActions) {
-                    if (best.Rating < action.Rating) {
-                        best = action;
+                if (best != null) {
+                    foreach (Action action in PotencialActions) {
+                        if (best.Rating < action.Rating && action.IsValid) {
+                            best = action;
+                        }
                     }
-                }
+                    if (best.Rating > 0) {
+                        PlannedActions.Add (best);
+                        PerformAction (best, EnemyLegalBoard, MyLegalBoard, LegalHand, player, opponent);
+                    } else {
+                        notPass = false;
+                    }
 
-                if (best.Rating <= 0) {
-                    break;
                 } else {
-                    PlannedActions.Add (best);
-                    PerformAction (best, EnemyLegalBoard, MyLegalBoard, LegalHand, player, opponent);
+                    notPass = false;
                 }
             } else {
                 notPass = false;
             }
-            if (Globals.debug) {
+#if (DEBUG) 
+            {
                 Console.Error.WriteLine ("PlannedActions: " + PlannedActions.Count);
                 foreach (Action action in PlannedActions) {
                     Console.Error.Write (action.TypeToString () + " ");
@@ -729,7 +728,7 @@ class Player {
                     }
                 }
             }
-
+#endif
         }
         while (notPass && (LegalHand.Count > 0 || MyLegalBoard.Count > 0));
 
@@ -886,6 +885,7 @@ class Player {
                 if (action.Result.DefenderDied) {
                     value += 4;
                 }
+                // todo
                 Console.Error.WriteLine ("eval:use not handled");
                 break;
 
@@ -905,26 +905,35 @@ class Player {
         switch (action.Type) {
 
             case 1: // SUMMON
-                Unit unit = new Unit (action.CardRef);
+                MyBoard.Enqueue (new Unit (action.CardRef));
                 player.Mana -= action.CardRef.Cost;
                 while (MyHand.Peek () != action.CardRef) {
                     MyHand.Enqueue (MyHand.Dequeue ());
                 }
                 MyHand.Dequeue ();
-                MyBoard.Enqueue (unit);
                 break;
 
             case 2: // ATTACK
-                action.UnitRef.CanAttack = false;
                 action.UnitRef.HasAttacked = true;
                 player.Health += action.Result.AttackerHealthChange;
                 opponent.Health += action.Result.DefenderHealthChange;
                 if (action.Id2 != -1) {
+
                     action.UnitRef.Defense += action.Result.AttackerDefenseChange;
                     action.TargetRef.Defense += action.Result.DefenderDefenseChange;
                     opponent.Health += action.Result.AttackerExcessiveDamage;
                     action.UnitRef.Abilities.HasWard = action.UnitRef.Abilities.HasWard && !action.Result.AttackerLostWard;
                     action.TargetRef.Abilities.HasWard = action.TargetRef.Abilities.HasWard && !action.Result.DefenderLostWard;
+
+                    while (action.Result.AttackerDied && MyBoard.Peek () != action.TargetRef) {
+                        MyBoard.Enqueue (MyBoard.Dequeue ());
+                    }
+                    MyBoard.Dequeue ();
+
+                    while (action.Result.DefenderDied && EnemyBoard.Peek () != action.UnitRef) {
+                        MyBoard.Enqueue (EnemyBoard.Dequeue ());
+                    }
+                    EnemyBoard.Dequeue ();
                 }
                 break;
 
@@ -973,6 +982,11 @@ class Player {
                         }
                     }
 
+                    while (MyHand.Peek () != action.CardRef) {
+                        MyHand.Enqueue (MyHand.Dequeue ());
+                    }
+                    MyHand.Dequeue ();
+
                 } else if (action.CardRef.Type == 2) { //Red
 
                     action.TargetRef.Attack += action.Result.DefenderAttackChange;
@@ -999,11 +1013,31 @@ class Player {
                         }
                     }
 
+                    while (MyHand.Peek () != action.CardRef) {
+                        MyHand.Enqueue (MyHand.Dequeue ());
+                    }
+                    MyHand.Dequeue ();
+
+                    while (action.Result.DefenderDied && EnemyBoard.Peek () != action.UnitRef) {
+                        MyBoard.Enqueue (EnemyBoard.Dequeue ());
+                    }
+                    EnemyBoard.Dequeue ();
+
                 } else { // Blue
 
                     player.Health += action.Result.AttackerHealthChange;
                     opponent.Health += action.Result.DefenderHealthChange;
                     action.TargetRef.Defense += action.Result.DefenderDefenseChange;
+
+                    while (action.Result.DefenderDied && EnemyBoard.Peek () != action.UnitRef) {
+                        MyBoard.Enqueue (EnemyBoard.Dequeue ());
+                    }
+                    EnemyBoard.Dequeue ();
+
+                    while (MyHand.Peek () != action.CardRef) {
+                        MyHand.Enqueue (MyHand.Dequeue ());
+                    }
+                    MyHand.Dequeue ();
 
                 }
                 break;
