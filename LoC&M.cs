@@ -213,6 +213,48 @@ public class Keywords {
         this.HasWard = data[5] == 'W';
     }
 
+    public void AddKeywords (Keywords keywords) {
+        if (keywords.HasBreakthrough) {
+            this.HasBreakthrough = true;
+        }
+        if (keywords.HasCharge) {
+            this.HasCharge = true;
+        }
+        if (keywords.HasDrain) {
+            this.HasDrain = true;
+        }
+        if (keywords.HasGuard) {
+            this.HasGuard = true;
+        }
+        if (keywords.HasLethal) {
+            this.HasLethal = true;
+        }
+        if (keywords.HasWard) {
+            this.HasWard = true;
+        }
+    }
+
+    public void SubKeywords (Keywords keywords) {
+        if (keywords.HasBreakthrough) {
+            this.HasBreakthrough = false;
+        }
+        if (keywords.HasCharge) {
+            this.HasCharge = false;
+        }
+        if (keywords.HasDrain) {
+            this.HasDrain = false;
+        }
+        if (keywords.HasGuard) {
+            this.HasGuard = false;
+        }
+        if (keywords.HasLethal) {
+            this.HasLethal = false;
+        }
+        if (keywords.HasWard) {
+            this.HasWard = false;
+        }
+    }
+
     public Keywords (Keywords keywords) {
         this.HasBreakthrough = keywords.HasBreakthrough;
         this.HasCharge = keywords.HasCharge;
@@ -266,9 +308,6 @@ public class Action {
         }
     }
 
-    //JUST LEAVE IT
-    // public Action () { }
-
     // MAIN
     public Action (int Type, int Id1, int Id2, Unit UnitRef, Card CardRef, Unit TargetRef) {
         this.Type = Type;
@@ -294,11 +333,7 @@ public class Action {
                 Result = new SummonResult (CardRef);
                 break;
             case 2: // ATTACK
-                if (Id2 == -1) {
-                    Result = new AttackResult (UnitRef);
-                } else {
-                    Result = new AttackResult (UnitRef, TargetRef);
-                }
+                Result = new AttackResult (UnitRef, TargetRef);
                 break;
             case 3: //USE
                 Result = new UseResult (CardRef, TargetRef);
@@ -316,23 +351,16 @@ public class Action {
 public class ActionResult { //Player:Attacker, Enemy:Defender
     public int AttackerHealthChange { get; set; }
     public int DefenderHealthChange { get; set; }
-    public int AttackerAttackChange { get; set; }
-    public int DefenderAttackChange { get; set; }
-    public int AttackerDefenseChange { get; set; }
-    public int DefenderDefenseChange { get; set; }
-    public int AttackerExcessiveDamage { get; set; }
-    public bool AbilitiesChange { get; set; }
     public bool AttackerDied { get; set; }
     public bool DefenderDied { get; set; }
-    public bool AttackerLostWard { get; set; }
-    public bool DefenderLostWard { get; set; }
+    public Unit NewAttacker;
+    public Unit NewDefender;
 }
 
 public class SummonResult : ActionResult {
-    public Card Summoning;
 
-    public SummonResult (Card Summoning) {
-        this.Summoning = Summoning;
+    public SummonResult (Card CardRef) {
+        this.NewAttacker = new Unit (CardRef);
     }
 }
 
@@ -344,81 +372,75 @@ public class AttackResult : ActionResult {
     public AttackResult (Unit Attacker, Unit Defender) {
         this.Attacker = Attacker;
         this.Defender = Defender;
-        this.goFace = false;
-        someMath ();
-    }
-
-    public AttackResult (Unit Attacker) {
-        this.Attacker = Attacker;
-        this.Defender = null;
-        this.goFace = true;
+        this.AttackerHealthChange = 0;
+        this.DefenderHealthChange = 0;
+        this.NewAttacker = new Unit (Attacker);
+        this.NewAttacker.HasAttacked = true;
+        if (Defender == null) {
+            this.goFace = true;
+            this.NewDefender = null;
+        } else {
+            this.goFace = false;
+            this.NewDefender = new Unit (Defender);
+        }
         someMath ();
     }
 
     private void someMath () {
         if (goFace) {
             DefenderHealthChange = -Attacker.Attack;
-            if (Attacker.Abilities.HasDrain) { //Drain A
-                AttackerHealthChange = -Attacker.Attack;
-            } else {
-                AttackerHealthChange = 0;
+            if (Attacker.Abilities.HasDrain) {
+                //Drain A
+                AttackerHealthChange = Attacker.Attack;
             }
         } else {
 
-            if (Attacker.Abilities.HasWard) { //Ward A
-                AttackerDefenseChange = 0;
-                if (Defender.Attack > 0) {
-                    AttackerLostWard = true;
-                }
+            //Ward A
+            if (Attacker.Abilities.HasWard && Defender.Attack > 0) {
+                NewAttacker.Abilities.HasWard = false;
             } else {
-                AttackerDefenseChange = -Math.Min (Defender.Attack, Attacker.Defense);
+                NewAttacker.Defense -= Defender.Attack;
             }
 
-            if (Defender.Abilities.HasWard) { //Ward D
-                DefenderDefenseChange = 0;
-                if (Attacker.Attack > 0) {
-                    DefenderLostWard = true;
-                } else {
-                    DefenderLostWard = false;
-                }
+            //Ward D
+            if (Defender.Abilities.HasWard && Attacker.Attack > 0) {
+                NewDefender.Abilities.HasWard = false;
             } else {
-                DefenderDefenseChange = -Math.Min (Attacker.Attack, Defender.Defense);
+                NewDefender.Defense -= Attacker.Attack;
             }
 
-            if ((DefenderDefenseChange + Defender.Defense < 0) ||
-                (DefenderDefenseChange != 0 && Attacker.Abilities.HasLethal)) { //Lethal A
+            //Lethal A
+            if (NewDefender.Defense < 0 ||
+                (NewDefender.Defense < Defender.Defense &&
+                    Attacker.Abilities.HasLethal)) {
                 DefenderDied = true;
             } else {
                 DefenderDied = false;
             }
 
-            if ((AttackerDefenseChange + Defender.Defense < 0) ||
-                (AttackerDefenseChange != 0 && Defender.Abilities.HasLethal)) { //Lethal D
+            //Lethal D
+            if (NewAttacker.Defense < 0 ||
+                (NewAttacker.Defense < Attacker.Defense &&
+                    Defender.Abilities.HasLethal)) {
                 AttackerDied = true;
             } else {
                 AttackerDied = false;
             }
 
-            if (Attacker.Abilities.HasBreakthrough) { //Breakthrough A
-                if (Attacker.Attack > Defender.Defense && DefenderDied) {
-                    AttackerExcessiveDamage = Defender.Defense - Attacker.Attack;
-                    if (Attacker.Abilities.HasDrain) { //Drain A
-                        AttackerHealthChange -= AttackerExcessiveDamage;
-                    } else {
-                        AttackerHealthChange = 0;
+            //Breakthrough A
+            if (Attacker.Abilities.HasBreakthrough) {
+                if (NewDefender.Defense < 0) {
+                    //Drain A
+                    if (Attacker.Abilities.HasDrain) {
+                        AttackerHealthChange += -NewDefender.Defense;
                     }
-                } else {
-                    AttackerExcessiveDamage = 0;
                 }
-            } else {
-                AttackerExcessiveDamage = 0;
             }
 
+            //Drain A
             if (Attacker.Abilities.HasDrain &&
-                DefenderDefenseChange != 0) { //Drain A
-                AttackerHealthChange += DefenderDefenseChange;
-            } else {
-                AttackerHealthChange = 0;
+                NewDefender.Defense < Defender.Defense) {
+                AttackerHealthChange += Math.Abs (NewDefender.Defense - Defender.Defense);
             }
         }
     }
@@ -426,12 +448,13 @@ public class AttackResult : ActionResult {
 
 public class UseResult : ActionResult {
     public Card CardRef;
-    public Unit TargetRef;
+    public Unit NewTargetRef;
 
     public UseResult (Card CardRef, Unit TargetRef) {
         this.CardRef = CardRef;
-        this.TargetRef = TargetRef;
-        this.DefenderDefenseChange = 0;
+        if (TargetRef != null) {
+            this.NewTargetRef = new Unit (TargetRef);
+        }
         someMath ();
     }
 
@@ -439,38 +462,46 @@ public class UseResult : ActionResult {
 
         if (CardRef.Type == 1) { //Green
 
-            AttackerAttackChange = CardRef.Attack;
-            AttackerDefenseChange = CardRef.Defense;
-            AbilitiesChange = CardRef.Abilities.hasAnyKeyword ();
             AttackerHealthChange = CardRef.MyHealthChange;
+            NewTargetRef.Attack = CardRef.Attack;
+            NewTargetRef.Defense = CardRef.Defense;
+            if (CardRef.Abilities.hasAnyKeyword ()) {
+                NewTargetRef.Abilities.AddKeywords (CardRef.Abilities);
+            }
 
         } else if (CardRef.Type == 2) { //Red
 
-            AbilitiesChange = CardRef.Abilities.hasAnyKeyword ();
             DefenderHealthChange = CardRef.OppHealthChange;
+            if (CardRef.Abilities.hasAnyKeyword ()) {
+                NewTargetRef.Abilities.SubKeywords (CardRef.Abilities);
+            }
             if (CardRef.Defense != 0) {
-                if (TargetRef.Abilities.HasWard) {
-                    DefenderLostWard = true;
-                    if (AbilitiesChange) {
-                        DefenderAttackChange = CardRef.Attack;
-                        DefenderDefenseChange = CardRef.Defense;
-                    } else {
-                        DefenderAttackChange = 0;
-                        DefenderDefenseChange = 0;
-                    }
+                if (NewTargetRef.Abilities.HasWard) {
+                    NewTargetRef.Abilities.HasWard = false;
                 } else {
-                    DefenderAttackChange = CardRef.Attack;
-                    DefenderDefenseChange = CardRef.Defense;
+                    NewTargetRef.Attack -= CardRef.Attack;
+                    NewTargetRef.Defense -= CardRef.Defense;
                 }
             }
+            if (NewDefender.Defense < 0) {
+                DefenderDied = true;
+            }
+
         } else { //Blue
 
             AttackerHealthChange = CardRef.MyHealthChange;
             DefenderHealthChange = CardRef.OppHealthChange;
-            if (TargetRef != null) {
-                if (!TargetRef.Abilities.HasWard) {
-                    DefenderDefenseChange = CardRef.Defense;
+            if (NewTargetRef != null) {
+                if (CardRef.Defense != 0) {
+                    if (NewTargetRef.Abilities.HasWard) {
+                        NewTargetRef.Abilities.HasWard = false;
+                    } else {
+                        NewTargetRef.Defense -= CardRef.Defense;
+                    }
                 }
+            }
+            if (NewDefender.Defense < 0) {
+                DefenderDied = true;
             }
         }
     }
@@ -497,7 +528,7 @@ class Player {
             opponent = new PlayerStats (Console.ReadLine ().Split (' '));
             opponent.setHand (int.Parse (Console.ReadLine ()));
 
-            int cardCount = int.Parse (Console.ReadLine ());
+            int CardCount = int.Parse (Console.ReadLine ());
 
             Queue PlayerHand = new Queue ();
             Queue PlayerBoard = new Queue ();
@@ -511,7 +542,7 @@ class Player {
                     new Card (Console.ReadLine ().Split (' '))));
 
             } else {
-                for (int i = 0; i < cardCount; i++) {
+                for (int i = 0; i < CardCount; i++) {
 
                     Card card = new Card (Console.ReadLine ().Split (' '));
 
@@ -905,7 +936,7 @@ class Player {
         switch (action.Type) {
 
             case 1: // SUMMON
-                MyBoard.Enqueue (new Unit (action.CardRef));
+                MyBoard.Enqueue (action.Result.Unit);
                 player.Mana -= action.CardRef.Cost;
                 while (MyHand.Peek () != action.CardRef) {
                     MyHand.Enqueue (MyHand.Dequeue ());
@@ -914,26 +945,27 @@ class Player {
                 break;
 
             case 2: // ATTACK
-                action.UnitRef.HasAttacked = true;
                 player.Health += action.Result.AttackerHealthChange;
                 opponent.Health += action.Result.DefenderHealthChange;
-                if (action.Id2 != -1) {
+                if (!action.Result.goFace) {
 
-                    action.UnitRef.Defense += action.Result.AttackerDefenseChange;
-                    action.TargetRef.Defense += action.Result.DefenderDefenseChange;
-                    opponent.Health += action.Result.AttackerExcessiveDamage;
-                    action.UnitRef.Abilities.HasWard = action.UnitRef.Abilities.HasWard && !action.Result.AttackerLostWard;
-                    action.TargetRef.Abilities.HasWard = action.TargetRef.Abilities.HasWard && !action.Result.DefenderLostWard;
-
-                    while (action.Result.AttackerDied && MyBoard.Peek () != action.TargetRef) {
+                    while (MyBoard.Peek () != action.UnitRef) {
                         MyBoard.Enqueue (MyBoard.Dequeue ());
                     }
                     MyBoard.Dequeue ();
 
-                    while (action.Result.DefenderDied && EnemyBoard.Peek () != action.UnitRef) {
+                    if (!action.Result.AttackerDied) {
+                        MyBoard.Enqueue (action.Result.NewAttacker);
+                    }
+
+                    while (EnemyBoard.Peek () != action.TargetRef) {
                         MyBoard.Enqueue (EnemyBoard.Dequeue ());
                     }
                     EnemyBoard.Dequeue ();
+
+                    if (!action.Result.DefenderDied) {
+                        EnemyBoard.Enqueue (action.Result.NewDefender);
+                    }
                 }
                 break;
 
