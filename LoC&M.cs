@@ -88,22 +88,22 @@ public class Pick {
         int eval2 = 0;
         int eval3 = 0;
 
-        if (card1.Type == 0) {
-            MyPick = card1;
-            Console.WriteLine ("PICK 0");
+        // if (card1.Type == 0) {
+        //     MyPick = card1;
+        //     Console.WriteLine ("PICK 0");
 
-        } else if (card2.Type == 0) {
-            MyPick = card2;
-            Console.WriteLine ("PICK 1");
+        // } else if (card2.Type == 0) {
+        //     MyPick = card2;
+        //     Console.WriteLine ("PICK 1");
 
-        } else if (card3.Type == 0) {
-            MyPick = card3;
-            Console.WriteLine ("PICK 2");
+        // } else if (card3.Type == 0) {
+        //     MyPick = card3;
+        //     Console.WriteLine ("PICK 2");
 
-        } else {
-            MyPick = card1;
-            Console.WriteLine ("PASS");
-        }
+        // } else {
+        MyPick = card1;
+        Console.WriteLine ("PASS");
+        // }
     }
 }
 
@@ -355,6 +355,7 @@ public class ActionResult { //Player:Attacker, Enemy:Defender
     public bool DefenderDied { get; set; }
     public Unit NewAttacker;
     public Unit NewDefender;
+    public Unit NewTargetRef;
 }
 
 public class SummonResult : ActionResult {
@@ -389,8 +390,8 @@ public class AttackResult : ActionResult {
     private void someMath () {
         if (goFace) {
             DefenderHealthChange = -Attacker.Attack;
+            //Drain A
             if (Attacker.Abilities.HasDrain) {
-                //Drain A
                 AttackerHealthChange = Attacker.Attack;
             }
         } else {
@@ -448,7 +449,6 @@ public class AttackResult : ActionResult {
 
 public class UseResult : ActionResult {
     public Card CardRef;
-    public Unit NewTargetRef;
 
     public UseResult (Card CardRef, Unit TargetRef) {
         this.CardRef = CardRef;
@@ -483,7 +483,7 @@ public class UseResult : ActionResult {
                     NewTargetRef.Defense -= CardRef.Defense;
                 }
             }
-            if (NewDefender.Defense < 0) {
+            if (NewTargetRef.Defense < 0) {
                 DefenderDied = true;
             }
 
@@ -511,7 +511,6 @@ public static class Globals {
     public const Int32 maxBoard = 6;
     public const int maxHand = 8;
     public const int maxCardCost = 12;
-    // public const bool debug = true;
 }
 
 class Player {
@@ -881,43 +880,9 @@ class Player {
                 break;
 
             case 3: //USE
-                if (action.CardRef.Type == 1) {
-                    if (action.TargetRef.HasAttacked == false) {
-
-                    }
-
-                    if (action.TargetRef.CanAttack) {
-                        if (0 < action.Result.AttackerAttackChange + action.Result.AttackerDefenseChange) {
-                            value += 1;
-                        }
-                    }
-                    if (action.TargetRef.Abilities.HasGuard) {
-
-                    }
-                    if (action.TargetRef.Abilities.HasGuard) {
-                        value += 1;
-                    }
-
-                    if (true) {
-
-                    }
-                }
-                if (action.Result.AbilitiesChange) {
-                    if (action.TargetRef.Abilities.HasBreakthrough) {
-                        value += 1;
-                    }
-                    if (action.TargetRef.Abilities.HasDrain) {
-                        value += 1;
-                    }
-                    if (action.TargetRef.Abilities.HasLethal) {
-                        value += 3;
-                    }
-                }
-                if (action.Result.DefenderDied) {
-                    value += 4;
-                }
                 // todo
-                Console.Error.WriteLine ("eval:use not handled");
+                value += 1;
+                // Console.Error.WriteLine ("eval:use not handled");
                 break;
 
             case 4:
@@ -936,7 +901,7 @@ class Player {
         switch (action.Type) {
 
             case 1: // SUMMON
-                MyBoard.Enqueue (action.Result.Unit);
+                MyBoard.Enqueue (action.Result.NewAttacker);
                 player.Mana -= action.CardRef.Cost;
                 while (MyHand.Peek () != action.CardRef) {
                     MyHand.Enqueue (MyHand.Dequeue ());
@@ -947,17 +912,7 @@ class Player {
             case 2: // ATTACK
                 player.Health += action.Result.AttackerHealthChange;
                 opponent.Health += action.Result.DefenderHealthChange;
-                if (!action.Result.goFace) {
-
-                    while (MyBoard.Peek () != action.UnitRef) {
-                        MyBoard.Enqueue (MyBoard.Dequeue ());
-                    }
-                    MyBoard.Dequeue ();
-
-                    if (!action.Result.AttackerDied) {
-                        MyBoard.Enqueue (action.Result.NewAttacker);
-                    }
-
+                if (action.Id2 != -1) {
                     while (EnemyBoard.Peek () != action.TargetRef) {
                         MyBoard.Enqueue (EnemyBoard.Dequeue ());
                     }
@@ -967,111 +922,54 @@ class Player {
                         EnemyBoard.Enqueue (action.Result.NewDefender);
                     }
                 }
+                while (MyBoard.Peek () != action.UnitRef) {
+                    MyBoard.Enqueue (MyBoard.Dequeue ());
+                }
+                MyBoard.Dequeue ();
+
+                if (!action.Result.AttackerDied) {
+                    MyBoard.Enqueue (action.Result.NewAttacker);
+                }
+
                 break;
 
             case 3: // USE
                 if (action.CardRef.Type == 1) { //Green
 
-                    action.TargetRef.Attack += action.Result.AttackerAttackChange;
-                    action.TargetRef.Defense += action.Result.AttackerDefenseChange;
                     player.Health += action.Result.AttackerHealthChange;
-                    if (action.Result.AbilitiesChange) {
-                        if (action.TargetRef.Abilities.HasBreakthrough ||
-                            action.CardRef.Abilities.HasBreakthrough) {
-                            action.TargetRef.Abilities.HasBreakthrough = true;
-                        } else {
-                            action.TargetRef.Abilities.HasBreakthrough = false;
-                        }
-                        if (action.TargetRef.Abilities.HasCharge ||
-                            action.CardRef.Abilities.HasCharge) {
-                            action.TargetRef.Abilities.HasCharge = true;
-                        } else {
-                            action.TargetRef.Abilities.HasCharge = false;
-                        }
-                        if (action.TargetRef.Abilities.HasDrain ||
-                            action.CardRef.Abilities.HasDrain) {
-                            action.TargetRef.Abilities.HasDrain = true;
-                        } else {
-                            action.TargetRef.Abilities.HasDrain = false;
-                        }
-                        if (action.TargetRef.Abilities.HasGuard ||
-                            action.CardRef.Abilities.HasGuard) {
-                            action.TargetRef.Abilities.HasGuard = true;
-                        } else {
-                            action.TargetRef.Abilities.HasGuard = false;
-                        }
-                        if (action.TargetRef.Abilities.HasLethal ||
-                            action.CardRef.Abilities.HasLethal) {
-                            action.TargetRef.Abilities.HasLethal = true;
-                        } else {
-                            action.TargetRef.Abilities.HasLethal = false;
-                        }
-                        if (action.TargetRef.Abilities.HasWard ||
-                            action.CardRef.Abilities.HasWard) {
-                            action.TargetRef.Abilities.HasWard = true;
-                        } else {
-                            action.TargetRef.Abilities.HasWard = false;
-                        }
-                    }
-
-                    while (MyHand.Peek () != action.CardRef) {
-                        MyHand.Enqueue (MyHand.Dequeue ());
-                    }
-                    MyHand.Dequeue ();
+                    MyBoard.Enqueue (action.Result.NewTargetRef);
 
                 } else if (action.CardRef.Type == 2) { //Red
 
-                    action.TargetRef.Attack += action.Result.DefenderAttackChange;
-                    action.TargetRef.Defense += action.Result.DefenderDefenseChange;
                     opponent.Health += action.Result.DefenderHealthChange;
-                    if (action.Result.AbilitiesChange) {
-                        if (action.CardRef.Abilities.HasBreakthrough) {
-                            action.TargetRef.Abilities.HasBreakthrough = false;
-                        }
-                        if (action.CardRef.Abilities.HasCharge) {
-                            action.TargetRef.Abilities.HasCharge = false;
-                        }
-                        if (action.CardRef.Abilities.HasDrain) {
-                            action.TargetRef.Abilities.HasDrain = false;
-                        }
-                        if (action.CardRef.Abilities.HasGuard) {
-                            action.TargetRef.Abilities.HasGuard = false;
-                        }
-                        if (action.CardRef.Abilities.HasLethal) {
-                            action.TargetRef.Abilities.HasLethal = false;
-                        }
-                        if (action.CardRef.Abilities.HasWard) {
-                            action.TargetRef.Abilities.HasWard = false;
-                        }
-                    }
-
-                    while (MyHand.Peek () != action.CardRef) {
-                        MyHand.Enqueue (MyHand.Dequeue ());
-                    }
-                    MyHand.Dequeue ();
-
-                    while (action.Result.DefenderDied && EnemyBoard.Peek () != action.UnitRef) {
-                        MyBoard.Enqueue (EnemyBoard.Dequeue ());
+                    while (EnemyBoard.Peek () != action.TargetRef) {
+                        EnemyBoard.Enqueue (EnemyBoard.Dequeue ());
                     }
                     EnemyBoard.Dequeue ();
+                    if (!action.Result.DefenderDied) {
+                        EnemyBoard.Enqueue (action.Result.NewTargetRef);
+                    }
 
                 } else { // Blue
 
                     player.Health += action.Result.AttackerHealthChange;
                     opponent.Health += action.Result.DefenderHealthChange;
-                    action.TargetRef.Defense += action.Result.DefenderDefenseChange;
+                    if (action.Result.NewTargetRef != null) {
 
-                    while (action.Result.DefenderDied && EnemyBoard.Peek () != action.UnitRef) {
-                        MyBoard.Enqueue (EnemyBoard.Dequeue ());
+                        while (EnemyBoard.Peek () != action.TargetRef) {
+                            MyBoard.Enqueue (EnemyBoard.Dequeue ());
+                        }
+                        EnemyBoard.Dequeue ();
                     }
-                    EnemyBoard.Dequeue ();
-
-                    while (MyHand.Peek () != action.CardRef) {
-                        MyHand.Enqueue (MyHand.Dequeue ());
+                    if (!action.Result.DefenderDied) {
+                        EnemyBoard.Enqueue (action.Result.NewTargetRef);
                     }
-                    MyHand.Dequeue ();
 
                 }
+                while (MyHand.Peek () != action.CardRef) {
+                    MyHand.Enqueue (MyHand.Dequeue ());
+                }
+                MyHand.Dequeue ();
                 break;
 
             case 4: // PASS
