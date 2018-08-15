@@ -1,5 +1,4 @@
 #define DEBUG
-// #undef DEBUG
 
 using System;
 using System.Collections;
@@ -8,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+//todo: pass useful
+//todo: use eval
 //todo: count cardDraw
 //todo: count runes
 public class PlayerStats {
@@ -35,8 +36,8 @@ public class CardDataBase {
 
     public CardDataBase () {
         string RawData = "1;0;1;2;1;------;1;0;0.2;0;1;1;2;------;0;-1;0.3;0;1;2;2;------;0;0;0.4;0;2;1;5;------;0;0;0.5;0;2;4;1;------;0;0;0.6;0;2;3;2;------;0;0;0.7;0;2;2;2;-----W;0;0;0.8;0;2;2;3;------;0;0;0.9;0;3;3;4;------;0;0;0.10;0;3;3;1;--D---;0;0;0.11;0;3;5;2;------;0;0;0.12;0;3;2;5;------;0;0;0.13;0;4;5;3;------;1;-1;0.14;0;4;9;1;------;0;0;0.15;0;4;4;5;------;0;0;0.16;0;4;6;2;------;0;0;0.17;0;4;4;5;------;0;0;0.18;0;4;7;4;------;0;0;0.19;0;5;5;6;------;0;0;0.20;0;5;8;2;------;0;0;0.21;0;5;6;5;------;0;0;0.22;0;6;7;5;------;0;0;0.23;0;7;8;8;------;0;0;0.24;0;1;1;1;------;0;-1;0.25;0;2;3;1;------;-2;-2;0.26;0;2;3;2;------;0;-1;0.27;0;2;2;2;------;2;0;0.28;0;2;1;2;------;0;0;1.29;0;2;2;1;------;0;0;1.30;0;3;4;2;------;0;-2;0.31;0;3;3;1;------;0;-1;0.32;0;3;3;2;------;0;0;1.33;0;4;4;3;------;0;0;1.34;0;5;3;5;------;0;0;1.35;0;6;5;2;B-----;0;0;1.36;0;6;4;4;------;0;0;2.37;0;6;5;7;------;0;0;1.38;0;1;1;3;--D---;0;0;0.39;0;1;2;1;--D---;0;0;0.40;0;3;2;3;--DG--;0;0;0.41;0;3;2;2;-CD---;0;0;0.42;0;4;4;2;--D---;0;0;0.43;0;6;5;5;--D---;0;0;0.44;0;6;3;7;--D-L-;0;0;0.45;0;6;6;5;B-D---;-3;0;0.46;0;9;7;7;--D---;0;0;0.47;0;2;1;5;--D---;0;0;0.48;0;1;1;1;----L-;0;0;0.49;0;2;1;2;---GL-;0;0;0.50;0;3;3;2;----L-;0;0;0.51;0;4;3;5;----L-;0;0;0.52;0;4;2;4;----L-;0;0;0.53;0;4;1;1;-C--L-;0;0;0.54;0;3;2;2;----L-;0;0;0.55;0;2;0;5;---G--;0;0;0.56;0;4;2;7;------;0;0;0.57;0;4;1;8;------;0;0;0.58;0;6;5;6;B-----;0;0;0.59;0;7;7;7;------;1;-1;0.60;0;7;4;8;------;0;0;0.61;0;9;10;10;------;0;0;0.62;0;12;12;12;B--G--;0;0;0.63;0;2;0;4;---G-W;0;0;0.64;0;2;1;1;---G-W;0;0;0.65;0;2;2;2;-----W;0;0;0.66;0;5;5;1;-----W;0;0;0.67;0;6;5;5;-----W;0;-2;0.68;0;6;7;5;-----W;0;0;0.69;0;3;4;4;B-----;0;0;0.70;0;4;6;3;B-----;0;0;0.71;0;4;3;2;BC----;0;0;0.72;0;4;5;3;B-----;0;0;0.73;0;4;4;4;B-----;4;0;0.74;0;5;5;4;B--G--;0;0;0.75;0;5;6;5;B-----;0;0;0.76;0;6;5;5;B-D---;0;0;0.77;0;7;7;7;B-----;0;0;0.78;0;8;5;5;B-----;0;-5;0.79;0;8;8;8;B-----;0;0;0.80;0;8;8;8;B--G--;0;0;1.81;0;9;6;6;BC----;0;0;0.82;0;7;5;5;B-D--W;0;0;0.83;0;0;1;1;-C----;0;0;0.84;0;2;1;1;-CD--W;0;0;0.85;0;3;2;3;-C----;0;0;0.86;0;3;1;5;-C----;0;0;0.87;0;4;2;5;-C-G--;0;0;0.88;0;5;4;4;-C----;0;0;0.89;0;5;4;1;-C----;2;0;0.90;0;8;5;5;-C----;0;0;0.91;0;0;1;2;---G--;0;1;0.92;0;1;0;1;---G--;2;0;0.93;0;1;2;1;---G--;0;0;0.94;0;2;1;4;---G--;0;0;0.95;0;2;2;3;---G--;0;0;0.96;0;2;3;2;---G--;0;0;0.97;0;3;3;3;---G--;0;0;0.98;0;3;2;4;---G--;0;0;0.99;0;3;2;5;---G--;0;0;0.100;0;3;1;6;---G--;0;0;0.101;0;4;3;4;---G--;0;0;0.102;0;4;3;3;---G--;0;-1;0.103;0;4;3;6;---G--;0;0;0.104;0;4;4;4;---G--;0;0;0.105;0;5;4;6;---G--;0;0;0.106;0;5;5;5;---G--;0;0;0.107;0;5;3;3;---G--;3;0;0.108;0;5;2;6;---G--;0;0;0.109;0;5;5;6;------;0;0;0.110;0;5;0;9;---G--;0;0;0.111;0;6;6;6;---G--;0;0;0.112;0;6;4;7;---G--;0;0;0.113;0;6;2;4;---G--;4;0;0.114;0;7;7;7;---G--;0;0;0.115;0;8;5;5;---G-W;0;0;0.116;0;12;8;8;BCDGLW;0;0;0.117;1;1;1;1;B-----;0;0;0.118;1;0;0;3;------;0;0;0.119;1;1;1;2;------;0;0;0.120;1;2;1;0;----L-;0;0;0.121;1;2;0;3;------;0;0;1.122;1;2;1;3;---G--;0;0;0.123;1;2;4;0;------;0;0;0.124;1;3;2;1;--D---;0;0;0.125;1;3;1;4;------;0;0;0.126;1;3;2;3;------;0;0;0.127;1;3;0;6;------;0;0;0.128;1;4;4;3;------;0;0;0.129;1;4;2;5;------;0;0;0.130;1;4;0;6;------;4;0;0.131;1;4;4;1;------;0;0;0.132;1;5;3;3;B-----;0;0;0.133;1;5;4;0;-----W;0;0;0.134;1;4;2;2;------;0;0;1.135;1;6;5;5;------;0;0;0.136;1;0;1;1;------;0;0;0.137;1;2;0;0;-----W;0;0;0.138;1;2;0;0;---G--;0;0;1.139;1;4;0;0;----LW;0;0;0.140;1;2;0;0;-C----;0;0;0.141;2;0;-1;-1;------;0;0;0.142;2;0;0;0;BCDGLW;0;0;0.143;2;0;0;0;---G--;0;0;0.144;2;1;0;-2;------;0;0;0.145;2;3;-2;-2;------;0;0;0.146;2;4;-2;-2;------;0;-2;0.147;2;2;0;-1;------;0;0;1.148;2;2;0;-2;BCDGLW;0;0;0.149;2;3;0;0;BCDGLW;0;0;1.150;2;2;0;-3;------;0;0;0.151;2;5;0;-99;BCDGLW;0;0;0.152;2;7;0;-7;------;0;0;1.153;2;2;0;0;------;5;0;0.154;2;2;0;0;------;0;-2;1.155;2;3;0;-3;------;0;-1;0.156;2;3;0;0;------;3;-3;0.157;2;3;0;-1;------;1;0;1.158;2;3;0;-4;------;0;0;0.159;2;4;0;-3;------;3;0;0.160;2;2;0;0;------;2;-2;0";
-        string[] SlicedData = RawData.Split ('.');
-        foreach (string data in SlicedData) {
+        // string[] SlicedData = RawData.Split ('.');
+        foreach (string data in RawData.Split ('.')) {
             AllCards.Add (new CardData (data.Split (';')));
         }
     }
@@ -213,45 +214,24 @@ public class Keywords {
         this.HasWard = data[5] == 'W';
     }
 
-    public void AddKeywords (Keywords keywords) {
+    public void ChangeKeywords (Keywords keywords, bool value) {
         if (keywords.HasBreakthrough) {
-            this.HasBreakthrough = true;
+            this.HasBreakthrough = value;
         }
         if (keywords.HasCharge) {
-            this.HasCharge = true;
+            this.HasCharge = value;
         }
         if (keywords.HasDrain) {
-            this.HasDrain = true;
+            this.HasDrain = value;
         }
         if (keywords.HasGuard) {
-            this.HasGuard = true;
+            this.HasGuard = value;
         }
         if (keywords.HasLethal) {
-            this.HasLethal = true;
+            this.HasLethal = value;
         }
         if (keywords.HasWard) {
-            this.HasWard = true;
-        }
-    }
-
-    public void SubKeywords (Keywords keywords) {
-        if (keywords.HasBreakthrough) {
-            this.HasBreakthrough = false;
-        }
-        if (keywords.HasCharge) {
-            this.HasCharge = false;
-        }
-        if (keywords.HasDrain) {
-            this.HasDrain = false;
-        }
-        if (keywords.HasGuard) {
-            this.HasGuard = false;
-        }
-        if (keywords.HasLethal) {
-            this.HasLethal = false;
-        }
-        if (keywords.HasWard) {
-            this.HasWard = false;
+            this.HasWard = value;
         }
     }
 
@@ -463,24 +443,24 @@ public class UseResult : ActionResult {
         if (CardRef.Type == 1) { //Green
 
             AttackerHealthChange = CardRef.MyHealthChange;
-            NewTargetRef.Attack = CardRef.Attack;
-            NewTargetRef.Defense = CardRef.Defense;
+            NewTargetRef.Attack += CardRef.Attack;
+            NewTargetRef.Defense += CardRef.Defense;
             if (CardRef.Abilities.hasAnyKeyword ()) {
-                NewTargetRef.Abilities.AddKeywords (CardRef.Abilities);
+                NewTargetRef.Abilities.ChangeKeywords (CardRef.Abilities, true);
             }
 
         } else if (CardRef.Type == 2) { //Red
 
             DefenderHealthChange = CardRef.OppHealthChange;
             if (CardRef.Abilities.hasAnyKeyword ()) {
-                NewTargetRef.Abilities.SubKeywords (CardRef.Abilities);
+                NewTargetRef.Abilities.ChangeKeywords (CardRef.Abilities, false);
             }
             if (CardRef.Defense != 0) {
                 if (NewTargetRef.Abilities.HasWard) {
                     NewTargetRef.Abilities.HasWard = false;
                 } else {
-                    NewTargetRef.Attack -= CardRef.Attack;
-                    NewTargetRef.Defense -= CardRef.Defense;
+                    NewTargetRef.Attack += CardRef.Attack;
+                    NewTargetRef.Defense += CardRef.Defense;
                 }
             }
             if (NewTargetRef.Defense < 0) {
@@ -496,12 +476,12 @@ public class UseResult : ActionResult {
                     if (NewTargetRef.Abilities.HasWard) {
                         NewTargetRef.Abilities.HasWard = false;
                     } else {
-                        NewTargetRef.Defense -= CardRef.Defense;
+                        NewTargetRef.Defense += CardRef.Defense;
                     }
                 }
-            }
-            if (NewDefender.Defense < 0) {
-                DefenderDied = true;
+                if (NewTargetRef.Defense < 0) {
+                    DefenderDied = true;
+                }
             }
         }
     }
@@ -575,36 +555,6 @@ class Player {
         }
     }
 
-    static Queue LegalizeHand (Queue cards, PlayerStats player) {
-        Queue LegalHand = new Queue ();
-        foreach (Card card in cards) {
-            if (card.Cost <= player.Mana) {
-                LegalHand.Enqueue (card);
-            }
-        }
-        return LegalHand;
-    }
-
-    static Queue LegalizeMyBoard (Queue units, PlayerStats player) {
-        Queue LegalBoard = new Queue ();
-        foreach (Unit unit in units) {
-            if (unit.Defense > 0 || unit.HasAttacked == false) {
-                LegalBoard.Enqueue (unit);
-            }
-        }
-        return LegalBoard;
-    }
-
-    static Queue LegalizeEnemyBoard (Queue units) {
-        Queue LegalBoard = new Queue ();
-        foreach (Unit unit in units) {
-            if (unit.Defense > 0) {
-                LegalBoard.Enqueue (unit);
-            }
-        }
-        return LegalBoard;
-    }
-
     static void ValidAction (Action action, Queue EnemyBoard, Queue MyBoard, Queue MyHand, PlayerStats player, PlayerStats opponent) {
         bool IsValid = true;
         switch (action.Type) {
@@ -639,7 +589,6 @@ class Player {
                     IsValid = false;
                 }
                 break;
-                //todo
             default:
                 Console.Error.WriteLine ("ValidAction error ##################1");
                 break;
@@ -652,18 +601,27 @@ class Player {
         List<Action> PotencialActions;
         List<Action> PlannedActions = new List<Action> ();
 
-        bool notPass = true;
+        bool Pass = false;
+        int ValidPotencialActions;
 
         do {
 
             PotencialActions = new List<Action> ();
-            // LegalHand = LegalizeHand (LegalHand, player);
-            // MyLegalBoard = LegalizeMyBoard (MyLegalBoard, player);
-            // EnemyLegalBoard = LegalizeEnemyBoard (EnemyLegalBoard);
+            ValidPotencialActions = 0;
 
             foreach (Unit unit in MyLegalBoard) {
                 foreach (Unit enemy in EnemyLegalBoard) {
-                    PotencialActions.Add (new Action (2, unit.Id, enemy.Id, unit, null, enemy));
+                    try {
+                        PotencialActions.Add (new Action (2, unit.Id, enemy.Id, unit, null, enemy));
+                    } catch (NullReferenceException exception) {
+                        if (unit == null) {
+                            Console.Error.WriteLine ("unit is null");
+                        }
+                        if (enemy == null) {
+                            Console.Error.WriteLine ("enemy is null");
+                        }
+                        throw exception;
+                    }
                 }
                 PotencialActions.Add (new Action (2, unit.Id, -1, unit, null, null));
             }
@@ -691,16 +649,9 @@ class Player {
 
             foreach (Action action in PotencialActions) {
                 ValidAction (action, EnemyLegalBoard, MyLegalBoard, LegalHand, player, opponent);
-            }
-
-            foreach (Action action in PotencialActions) {
                 if (action.IsValid) {
+                    ValidPotencialActions++;
                     action.resolve ();
-                }
-            }
-
-            foreach (Action action in PotencialActions) {
-                if (action.IsValid) {
                     action.setRating (EvalPlay (action, EnemyLegalBoard, MyLegalBoard, LegalHand, player, opponent));
                 }
             }
@@ -718,7 +669,7 @@ class Player {
                 }
             }
 #endif
-            if (PotencialActions.Count > 0) {
+            if (ValidPotencialActions > 0) {
                 Action best = null;
                 foreach (Action action in PotencialActions) {
                     if (action.IsValid) {
@@ -736,14 +687,18 @@ class Player {
                         PlannedActions.Add (best);
                         PerformAction (best, EnemyLegalBoard, MyLegalBoard, LegalHand, player, opponent);
                     } else {
-                        notPass = false;
+                        Pass = true;
                     }
 
                 } else {
-                    notPass = false;
+                    Pass = true;
                 }
             } else {
-                notPass = false;
+                Pass = true;
+            }
+
+            if (opponent.Health <= 0) {
+                Pass = true;
             }
 #if (DEBUG) 
             {
@@ -759,12 +714,10 @@ class Player {
                 }
             }
 #endif
-        }
-        while (notPass && (LegalHand.Count > 0 || MyLegalBoard.Count > 0));
+        } while (!Pass);
 
+        string command = "";
         if (PlannedActions.Count > 0) {
-
-            string command = "";
 
             foreach (Action action in PlannedActions) {
 
@@ -802,99 +755,10 @@ class Player {
                 }
             }
             Console.WriteLine (command);
-        } else {
+        }
+        if (command == "") {
             Console.WriteLine ("PASS");
         }
-    }
-
-    static float EvalPlay (Action action, Queue EnemyBoard, Queue MyBoard, Queue MyHand, PlayerStats player, PlayerStats opponent) {
-        float value = 0;
-        switch (action.Type) {
-            case 1: //SUMMON
-
-                if (player.Mana >= action.CardRef.Cost) {
-                    value += 1;
-                }
-                if (player.Mana == action.CardRef.Cost) {
-                    value += 1;
-                }
-                if (action.CardRef.Abilities.HasGuard) {
-                    value += 1;
-                }
-                if (action.CardRef.CardDraw > 0) {
-                    if (MyHand.Count + action.CardRef.CardDraw >= Globals.maxBoard - 1) {
-                        if (MyHand.Count == Globals.maxBoard) {
-                            value -= 5;
-                        }
-                        value -= 5;
-                    } else {
-                        value += 5;
-                    }
-                }
-                if (action.CardRef.Abilities.HasCharge) {
-                    value += 1;
-                }
-                break;
-
-            case 2: //ATTACK
-
-                if (action.Id2 == -1) {
-                    if (opponent.Health <= action.UnitRef.Attack) {
-                        value += 99;
-                    }
-                    value += 1;
-                } else {
-                    if (action.UnitRef.Abilities.HasBreakthrough) {
-                        if (action.TargetRef.Abilities.HasWard) {
-                            value -= 1;
-                        }
-                    }
-                    if (action.UnitRef.Abilities.HasLethal) {
-                        value += 2;
-                        if (action.TargetRef.Abilities.HasGuard) {
-                            value += 3;
-                        }
-                        if (action.TargetRef.Abilities.HasWard) {
-                            value -= 5;
-                        }
-                    }
-                    if (action.UnitRef.Abilities.HasWard) {
-                        if (action.TargetRef.Abilities.HasDrain) {
-                            value += 1;
-                        }
-                        if (action.TargetRef.Abilities.HasLethal) {
-                            value += 4;
-                        }
-                        if (action.TargetRef.Abilities.HasBreakthrough) {
-                            value += 1;
-                        }
-                    }
-                    if (action.TargetRef.Attack < 1) {
-                        value += 1;
-                    }
-                }
-
-                if (action.UnitRef.Attack < 1) { //USED AS ASSUMPTION
-                    value -= 100;
-                }
-                break;
-
-            case 3: //USE
-                // todo
-                value += 1;
-                // Console.Error.WriteLine ("eval:use not handled");
-                break;
-
-            case 4:
-
-                Console.Error.WriteLine ("eval:pass not handled");
-                break;
-
-            default:
-                Console.Error.WriteLine ("Eval error ##################1");
-                break;
-        }
-        return value;
     }
 
     static void PerformAction (Action action, Queue EnemyBoard, Queue MyBoard, Queue MyHand, PlayerStats player, PlayerStats opponent) {
@@ -957,12 +821,13 @@ class Player {
                     if (action.Result.NewTargetRef != null) {
 
                         while (EnemyBoard.Peek () != action.TargetRef) {
-                            MyBoard.Enqueue (EnemyBoard.Dequeue ());
+                            EnemyBoard.Enqueue (EnemyBoard.Dequeue ());
                         }
                         EnemyBoard.Dequeue ();
-                    }
-                    if (!action.Result.DefenderDied) {
-                        EnemyBoard.Enqueue (action.Result.NewTargetRef);
+
+                        if (!action.Result.DefenderDied) {
+                            EnemyBoard.Enqueue (action.Result.NewTargetRef);
+                        }
                     }
 
                 }
@@ -980,5 +845,94 @@ class Player {
                 Console.Error.WriteLine ("Perform error ##################1");
                 break;
         }
+    }
+
+    static float EvalPlay (Action action, Queue EnemyBoard, Queue MyBoard, Queue MyHand, PlayerStats player, PlayerStats opponent) {
+        float value = 0;
+        switch (action.Type) {
+            case 1: //SUMMON
+
+                if (player.Mana >= action.CardRef.Cost) {
+                    value += 1;
+                }
+                if (player.Mana == action.CardRef.Cost) {
+                    value += 1;
+                }
+                if (action.CardRef.Abilities.HasGuard) {
+                    value += 1;
+                }
+                if (action.CardRef.CardDraw > 0) {
+                    if (MyHand.Count + action.CardRef.CardDraw >= Globals.maxBoard - 1) {
+                        if (MyHand.Count == Globals.maxBoard) {
+                            value -= 1;
+                        }
+                        value -= 1;
+                    } else {
+                        value += 3;
+                    }
+                }
+                if (action.CardRef.Abilities.HasCharge) {
+                    value += 1;
+                }
+                break;
+
+            case 2: //ATTACK
+
+                if (action.Id2 == -1) {
+                    if (opponent.Health <= action.UnitRef.Attack) {
+                        value += 99;
+                    }
+                    value += 1;
+                } else {
+                    if (action.UnitRef.Abilities.HasBreakthrough) {
+                        if (action.TargetRef.Abilities.HasWard) {
+                            value -= 1;
+                        }
+                    }
+                    if (action.UnitRef.Abilities.HasLethal) {
+                        value += 2;
+                        if (action.TargetRef.Abilities.HasGuard) {
+                            value += 3;
+                        }
+                        if (action.TargetRef.Abilities.HasWard) {
+                            value -= 5;
+                        }
+                    }
+                    if (action.UnitRef.Abilities.HasWard) {
+                        if (action.TargetRef.Abilities.HasDrain) {
+                            value += 1;
+                        }
+                        if (action.TargetRef.Abilities.HasLethal) {
+                            value += 4;
+                        }
+                        if (action.TargetRef.Abilities.HasBreakthrough) {
+                            value += 1;
+                        }
+                    }
+                    if (action.TargetRef.Attack < 1) {
+                        value += 1;
+                    }
+                }
+
+                if (action.UnitRef.Attack < 1) { //USED AS ASSUMPTION
+                    value -= 100;
+                }
+                break;
+
+            case 3: //USE
+                value += 1;
+                // Console.Error.WriteLine ("eval:use not handled");
+                break;
+
+            case 4:
+
+                Console.Error.WriteLine ("eval:pass not handled");
+                break;
+
+            default:
+                Console.Error.WriteLine ("Eval error ##################1");
+                break;
+        }
+        return value;
     }
 }
