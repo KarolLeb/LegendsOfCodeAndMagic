@@ -1,9 +1,10 @@
-#pragma optimize ( "ts", on )  
+#pragma warning disable 0162
 // #define DEBUG
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,7 @@ public class PlayerStats {
 }
 
 public class CardDataBase {
-    List<CardData> AllCards = new List<CardData> ();
+    public List<CardData> AllCards = new List<CardData> ();
 
     public CardDataBase () {
         string RawData = "1;0;1;2;1;------;1;0;0.2;0;1;1;2;------;0;-1;0.3;0;1;2;2;------;0;0;0.4;0;2;1;5;------;0;0;0.5;0;2;4;1;------;0;0;0.6;0;2;3;2;------;0;0;0.7;0;2;2;2;-----W;0;0;0.8;0;2;2;3;------;0;0;0.9;0;3;3;4;------;0;0;0.10;0;3;3;1;--D---;0;0;0.11;0;3;5;2;------;0;0;0.12;0;3;2;5;------;0;0;0.13;0;4;5;3;------;1;-1;0.14;0;4;9;1;------;0;0;0.15;0;4;4;5;------;0;0;0.16;0;4;6;2;------;0;0;0.17;0;4;4;5;------;0;0;0.18;0;4;7;4;------;0;0;0.19;0;5;5;6;------;0;0;0.20;0;5;8;2;------;0;0;0.21;0;5;6;5;------;0;0;0.22;0;6;7;5;------;0;0;0.23;0;7;8;8;------;0;0;0.24;0;1;1;1;------;0;-1;0.25;0;2;3;1;------;-2;-2;0.26;0;2;3;2;------;0;-1;0.27;0;2;2;2;------;2;0;0.28;0;2;1;2;------;0;0;1.29;0;2;2;1;------;0;0;1.30;0;3;4;2;------;0;-2;0.31;0;3;3;1;------;0;-1;0.32;0;3;3;2;------;0;0;1.33;0;4;4;3;------;0;0;1.34;0;5;3;5;------;0;0;1.35;0;6;5;2;B-----;0;0;1.36;0;6;4;4;------;0;0;2.37;0;6;5;7;------;0;0;1.38;0;1;1;3;--D---;0;0;0.39;0;1;2;1;--D---;0;0;0.40;0;3;2;3;--DG--;0;0;0.41;0;3;2;2;-CD---;0;0;0.42;0;4;4;2;--D---;0;0;0.43;0;6;5;5;--D---;0;0;0.44;0;6;3;7;--D-L-;0;0;0.45;0;6;6;5;B-D---;-3;0;0.46;0;9;7;7;--D---;0;0;0.47;0;2;1;5;--D---;0;0;0.48;0;1;1;1;----L-;0;0;0.49;0;2;1;2;---GL-;0;0;0.50;0;3;3;2;----L-;0;0;0.51;0;4;3;5;----L-;0;0;0.52;0;4;2;4;----L-;0;0;0.53;0;4;1;1;-C--L-;0;0;0.54;0;3;2;2;----L-;0;0;0.55;0;2;0;5;---G--;0;0;0.56;0;4;2;7;------;0;0;0.57;0;4;1;8;------;0;0;0.58;0;6;5;6;B-----;0;0;0.59;0;7;7;7;------;1;-1;0.60;0;7;4;8;------;0;0;0.61;0;9;10;10;------;0;0;0.62;0;12;12;12;B--G--;0;0;0.63;0;2;0;4;---G-W;0;0;0.64;0;2;1;1;---G-W;0;0;0.65;0;2;2;2;-----W;0;0;0.66;0;5;5;1;-----W;0;0;0.67;0;6;5;5;-----W;0;-2;0.68;0;6;7;5;-----W;0;0;0.69;0;3;4;4;B-----;0;0;0.70;0;4;6;3;B-----;0;0;0.71;0;4;3;2;BC----;0;0;0.72;0;4;5;3;B-----;0;0;0.73;0;4;4;4;B-----;4;0;0.74;0;5;5;4;B--G--;0;0;0.75;0;5;6;5;B-----;0;0;0.76;0;6;5;5;B-D---;0;0;0.77;0;7;7;7;B-----;0;0;0.78;0;8;5;5;B-----;0;-5;0.79;0;8;8;8;B-----;0;0;0.80;0;8;8;8;B--G--;0;0;1.81;0;9;6;6;BC----;0;0;0.82;0;7;5;5;B-D--W;0;0;0.83;0;0;1;1;-C----;0;0;0.84;0;2;1;1;-CD--W;0;0;0.85;0;3;2;3;-C----;0;0;0.86;0;3;1;5;-C----;0;0;0.87;0;4;2;5;-C-G--;0;0;0.88;0;5;4;4;-C----;0;0;0.89;0;5;4;1;-C----;2;0;0.90;0;8;5;5;-C----;0;0;0.91;0;0;1;2;---G--;0;1;0.92;0;1;0;1;---G--;2;0;0.93;0;1;2;1;---G--;0;0;0.94;0;2;1;4;---G--;0;0;0.95;0;2;2;3;---G--;0;0;0.96;0;2;3;2;---G--;0;0;0.97;0;3;3;3;---G--;0;0;0.98;0;3;2;4;---G--;0;0;0.99;0;3;2;5;---G--;0;0;0.100;0;3;1;6;---G--;0;0;0.101;0;4;3;4;---G--;0;0;0.102;0;4;3;3;---G--;0;-1;0.103;0;4;3;6;---G--;0;0;0.104;0;4;4;4;---G--;0;0;0.105;0;5;4;6;---G--;0;0;0.106;0;5;5;5;---G--;0;0;0.107;0;5;3;3;---G--;3;0;0.108;0;5;2;6;---G--;0;0;0.109;0;5;5;6;------;0;0;0.110;0;5;0;9;---G--;0;0;0.111;0;6;6;6;---G--;0;0;0.112;0;6;4;7;---G--;0;0;0.113;0;6;2;4;---G--;4;0;0.114;0;7;7;7;---G--;0;0;0.115;0;8;5;5;---G-W;0;0;0.116;0;12;8;8;BCDGLW;0;0;0.117;1;1;1;1;B-----;0;0;0.118;1;0;0;3;------;0;0;0.119;1;1;1;2;------;0;0;0.120;1;2;1;0;----L-;0;0;0.121;1;2;0;3;------;0;0;1.122;1;2;1;3;---G--;0;0;0.123;1;2;4;0;------;0;0;0.124;1;3;2;1;--D---;0;0;0.125;1;3;1;4;------;0;0;0.126;1;3;2;3;------;0;0;0.127;1;3;0;6;------;0;0;0.128;1;4;4;3;------;0;0;0.129;1;4;2;5;------;0;0;0.130;1;4;0;6;------;4;0;0.131;1;4;4;1;------;0;0;0.132;1;5;3;3;B-----;0;0;0.133;1;5;4;0;-----W;0;0;0.134;1;4;2;2;------;0;0;1.135;1;6;5;5;------;0;0;0.136;1;0;1;1;------;0;0;0.137;1;2;0;0;-----W;0;0;0.138;1;2;0;0;---G--;0;0;1.139;1;4;0;0;----LW;0;0;0.140;1;2;0;0;-C----;0;0;0.141;2;0;-1;-1;------;0;0;0.142;2;0;0;0;BCDGLW;0;0;0.143;2;0;0;0;---G--;0;0;0.144;2;1;0;-2;------;0;0;0.145;2;3;-2;-2;------;0;0;0.146;2;4;-2;-2;------;0;-2;0.147;2;2;0;-1;------;0;0;1.148;2;2;0;-2;BCDGLW;0;0;0.149;2;3;0;0;BCDGLW;0;0;1.150;2;2;0;-3;------;0;0;0.151;2;5;0;-99;BCDGLW;0;0;0.152;2;7;0;-7;------;0;0;1.153;2;2;0;0;------;5;0;0.154;2;2;0;0;------;0;-2;1.155;2;3;0;-3;------;0;-1;0.156;2;3;0;0;------;3;-3;0.157;2;3;0;-1;------;1;0;1.158;2;3;0;-4;------;0;0;0.159;2;4;0;-3;------;3;0;0.160;2;2;0;0;------;2;-2;0";
@@ -51,14 +52,91 @@ public class CardDataBase {
 }
 
 public class GameDataBase {
+    public ManaCurve ManaCurve;
     public List<Pick> DraftPicks; // holds certain pick
     public List<int> Uncertain; // holds CardData.CardNumber enemy played
     public Dictionary<int, int> GameCards; //holds card possible copies <CardData.CardNumber, Number>
 
     public GameDataBase () {
+        ManaCurve = new ManaCurve ();
         DraftPicks = new List<Pick> ();
         Uncertain = new List<int> ();
         GameCards = new Dictionary<int, int> ();
+    }
+}
+
+public class ManaCurve {
+    List<int> Curve;
+    public double Rating { get; set; }
+    private int CardNumber { get; set; }
+
+    public ManaCurve () {
+        Curve = new List<int> ();
+        for (int i = 0; i <= Globals.maxCardCost; i++) {
+            Curve.Add (0);
+        }
+        CardNumber = 0;
+    }
+
+    public ManaCurve (ManaCurve MC, CardData card) {
+        this.Curve = new List<int> (MC.Curve);
+        this.Curve[card.Cost]++;
+        this.CardNumber = MC.CardNumber + 1;
+        this.EvalManaCurve ();
+    }
+    void EvalManaCurve () {
+        List<int> maxNumber = new List<int> { 0, 2, 6, 7, 8, 8, 7, 6, 5, 4, 3, 3, 3 };
+        int tmp = 0;
+        int i = 0;
+        double ratio1 = CardNumber / 30;
+        double ratio2 = 1; //Math.Exp (0.03 * CardNumber);
+
+        for (; i <= MCSettings.low; i++) {
+            tmp += Curve[i];
+        }
+        Rating += -Math.Abs (ratio1 * MCSettings.lowNum - tmp) * ratio2;
+
+        tmp = 0;
+        for (i++; i <= MCSettings.med; i++) {
+            tmp += Curve[i];
+        }
+        Rating += -Math.Abs (ratio1 * MCSettings.medNum - tmp) * ratio2;
+
+        tmp = 0;
+        for (i++; i <= MCSettings.high; i++) {
+            tmp += Curve[i];
+        }
+        Rating += -Math.Abs (ratio1 * MCSettings.highNum - tmp) * ratio2;
+
+        if (MCSettings.shighNum > 0) {
+            tmp = 0;
+            for (i++; i <= Globals.maxCardCost; i++) {
+                tmp += Curve[i];
+            }
+            Rating += -Math.Abs (ratio1 * MCSettings.shighNum - tmp) * ratio2;
+        }
+
+        for (i = 0; i <= Globals.maxCardCost; i++) {
+            if (maxNumber[i] > Curve[i]) {
+                Rating -= 2 * (maxNumber[i] - Curve[i]);
+            }
+        }
+
+        for (i = 0; i <= Globals.maxCardCost; i++) {
+            if (2 * maxNumber[i] < Curve[i]) {
+                Rating -= Curve[i] - maxNumber[i];
+            }
+        }
+    }
+
+    static class MCSettings {
+        public const int low = 3;
+        public const int med = 6;
+        public const int high = 9;
+        public const int lowNum = 10;
+        public const int medNum = 10;
+        public const int highNum = 5;
+        public const int shighNum = 30 - (lowNum + medNum + highNum);
     }
 }
 
@@ -69,41 +147,60 @@ public class Pick {
     CardData card2;
     CardData card3;
 
-    public Pick (Dictionary<int, int> GameCards, CardData card1, CardData card2, CardData card3) {
+    public Pick (GameDataBase GameDB, CardData card1, CardData card2, CardData card3) {
         this.card1 = card1;
         this.card2 = card2;
         this.card3 = card3;
-        if (GameCards.ContainsKey (card1.CardNumber)) {
-            GameCards[card1.CardNumber] = GameCards[card1.CardNumber]++;
+        if (GameDB.GameCards.ContainsKey (card1.CardNumber)) {
+            GameDB.GameCards[card1.CardNumber] = GameDB.GameCards[card1.CardNumber]++;
         } else {
-            GameCards.Add (card1.CardNumber, 1);
+            GameDB.GameCards.Add (card1.CardNumber, 1);
         }
-        if (GameCards.ContainsKey (card2.CardNumber)) {
-            GameCards[card2.CardNumber] = GameCards[card2.CardNumber]++;
+        if (GameDB.GameCards.ContainsKey (card2.CardNumber)) {
+            GameDB.GameCards[card2.CardNumber] = GameDB.GameCards[card2.CardNumber]++;
         } else {
-            GameCards.Add (card2.CardNumber, 1);
+            GameDB.GameCards.Add (card2.CardNumber, 1);
         }
-        if (GameCards.ContainsKey (card3.CardNumber)) {
-            GameCards[card3.CardNumber] = GameCards[card3.CardNumber]++;
+        if (GameDB.GameCards.ContainsKey (card3.CardNumber)) {
+            GameDB.GameCards[card3.CardNumber] = GameDB.GameCards[card3.CardNumber]++;
         } else {
-            GameCards.Add (card3.CardNumber, 1);
+            GameDB.GameCards.Add (card3.CardNumber, 1);
         }
-        EvalPick ();
+        EvalPick (GameDB);
     }
 
-    void EvalPick () {
-        int eval1 = 0;
-        int eval2 = 0;
-        int eval3 = 0;
+    void EvalPick (GameDataBase GameDB) {
+        ManaCurve MC1 = new ManaCurve (GameDB.ManaCurve, card1);
+        ManaCurve MC2 = new ManaCurve (GameDB.ManaCurve, card2);
+        ManaCurve MC3 = new ManaCurve (GameDB.ManaCurve, card3);
 
-        MyPick = card1;
-        Console.Error.WriteLine ((DateTime.Now - Globals.startTime).Milliseconds);
-
-        Console.WriteLine ("PASS");
+        double eval1 = MC1.Rating;
+        double eval2 = MC2.Rating;
+        double eval3 = MC3.Rating;
+#if DEBUG
+        Console.Error.WriteLine ("Rating1:" + MC1.Rating);
+        Console.Error.WriteLine ("Rating2:" + MC2.Rating);
+        Console.Error.WriteLine ("Rating3:" + MC3.Rating);
+#endif
+        if (eval1 >= eval2 && eval1 >= eval3) {
+            MyPick = card1;
+            GameDB.ManaCurve = MC1;
+            Console.WriteLine ("PICK 0");
+        } else if (eval2 >= eval3) {
+            MyPick = card2;
+            GameDB.ManaCurve = MC2;
+            Console.WriteLine ("PICK 1");
+        } else {
+            MyPick = card3;
+            GameDB.ManaCurve = MC3;
+            Console.WriteLine ("PICK 2");
+        }
     }
 }
 
 public class CardData {
+    public double Rating { get; set; }
+
     public int CardNumber { get; set; }
     public int Type { get; set; } // 0:Creature, 1:Green, 2:Red, 3:Blue
     public int Cost { get; set; }
@@ -146,6 +243,13 @@ public class Card : CardData {
         this.OppHealthChange = int.Parse (data[9]);
         this.CardDraw = int.Parse (data[10]);
     }
+
+    public bool Equals (Card card) {
+        if (card == null) {
+            return false;
+        }
+        return this.Id.Equals (card.Id);
+    }
 }
 
 public class Unit {
@@ -157,14 +261,14 @@ public class Unit {
     public Keywords Abilities;
     public Card BaseCard;
 
-    public Unit (Unit creature) {
-        this.Id = creature.Id;
-        this.Attack = creature.Attack;
-        this.Defense = creature.Defense;
-        this.CanAttack = creature.CanAttack;
-        this.HasAttacked = creature.HasAttacked;
-        this.Abilities = new Keywords (creature.Abilities.toString ());
-        this.BaseCard = creature.BaseCard;
+    public Unit (Unit unit) {
+        this.Id = unit.Id;
+        this.Attack = unit.Attack;
+        this.Defense = unit.Defense;
+        this.CanAttack = unit.CanAttack;
+        this.HasAttacked = unit.HasAttacked;
+        this.Abilities = new Keywords (unit.Abilities.toString ());
+        this.BaseCard = unit.BaseCard;
     }
 
     public Unit (Card card, bool CanAttack) {
@@ -175,6 +279,13 @@ public class Unit {
         this.HasAttacked = false;
         this.Abilities = new Keywords (card.Abilities.toString ());
         this.BaseCard = card;
+    }
+
+    public bool Equals (Unit unit) {
+        if (unit == null) {
+            return false;
+        }
+        return this.Id.Equals (unit.Id);
     }
 }
 
@@ -320,7 +431,6 @@ public class Action {
     public class AttackResult : ActionResult {
         public Unit Attacker;
         public Unit Defender;
-        public bool goFace { get; set; }
 
         public AttackResult (Unit Attacker, Unit Defender) {
             this.Attacker = Attacker;
@@ -330,17 +440,15 @@ public class Action {
             this.NewAttacker = new Unit (Attacker);
             this.NewAttacker.HasAttacked = true;
             if (Defender == null) {
-                this.goFace = true;
                 this.NewDefender = null;
             } else {
-                this.goFace = false;
                 this.NewDefender = new Unit (Defender);
             }
             someMath ();
         }
 
         private void someMath () {
-            if (goFace) {
+            if (Defender == null) {
                 DefenderHealthChange = -Attacker.Attack;
                 //Drain A
                 if (Attacker.Abilities.HasDrain) {
@@ -363,7 +471,7 @@ public class Action {
                 }
 
                 //Lethal A
-                if (NewDefender.Defense < 0 ||
+                if (NewDefender.Defense <= 0 ||
                     (NewDefender.Defense < Defender.Defense &&
                         Attacker.Abilities.HasLethal)) {
                     DefenderDied = true;
@@ -372,7 +480,7 @@ public class Action {
                 }
 
                 //Lethal D
-                if (NewAttacker.Defense < 0 ||
+                if (NewAttacker.Defense <= 0 ||
                     (NewAttacker.Defense < Attacker.Defense &&
                         Defender.Abilities.HasLethal)) {
                     AttackerDied = true;
@@ -435,7 +543,7 @@ public class Action {
                         NewTargetRef.Defense += CardRef.Defense;
                     }
                 }
-                if (NewTargetRef.Defense < 0) {
+                if (NewTargetRef.Defense <= 0) {
                     DefenderDied = true;
                 }
 
@@ -451,7 +559,7 @@ public class Action {
                             NewTargetRef.Defense += CardRef.Defense;
                         }
                     }
-                    if (NewTargetRef.Defense < 0) {
+                    if (NewTargetRef.Defense <= 0) {
                         DefenderDied = true;
                     }
                 }
@@ -466,24 +574,30 @@ public static class Globals {
     public const int maxCardCost = 12;
     public const int maxTurnTime = 90;
     public const int maxPlaysStored = 256;
-    public static DateTime startTime;
+    public static Stopwatch startTime;
+    public static int actMillis = 0;
 }
 
 public class Best {
-    public Dictionary<float, GameState> Plays;
+    public List<GameState> Plays;
 
     public Best () {
-        Plays = new Dictionary<float, GameState> ();
+        Plays = new List<GameState> ();
     }
 
     public void AddPlay (GameState State) {
         if (Plays.Count < Globals.maxPlaysStored - 1) {
-            Plays.Add (State.Rating, State);
+            Plays.Add (State);
         } else {
-            float idx = Plays.Keys.Min ();
-            if (idx < State.Rating) {
+            GameState idx = Plays[0];
+            foreach (GameState item in Plays) {
+                if (idx.Rating > item.Rating) {
+                    idx = item;
+                }
+            }
+            if (idx.Rating < State.Rating) {
                 Plays.Remove (idx);
-                Plays.Add (State.Rating, State);
+                Plays.Add (State);
             }
         }
     }
@@ -493,21 +607,31 @@ public class Best {
     }
 
     public void GetBestState () {
-        float idx = Plays.Keys.Max ();
-        if (Plays[idx].Commands == "") {
+        GameState idx = Plays[0];
+        foreach (GameState item in Plays) {
+            if (idx.Rating < item.Rating) {
+                idx = item;
+            }
+        }
+#if DEBUG
+        Console.Error.WriteLine ("*****");
+        Console.Error.WriteLine ("Rating:" + idx.Rating);
+        Console.Error.WriteLine ("Commands:" + idx.Commands);
+#endif
+        if (idx.Commands == "") {
             Console.WriteLine ("PASS");
         } else {
-            Console.WriteLine (Plays[idx].Commands);
+            Console.WriteLine (idx.Commands);
         }
     }
 }
 
 public class GameState {
-    public float Rating { get; set; }
+    public double Rating { get; set; }
     public string Commands { get; set; }
-    public Queue MyHand;
-    public Queue MyBoard;
-    public Queue EnemyBoard;
+    public List<Card> MyHand;
+    public List<Unit> MyBoard;
+    public List<Unit> EnemyBoard;
     public PlayerStats player;
     public PlayerStats opponent;
 
@@ -515,43 +639,66 @@ public class GameState {
         this.Commands = "";
         this.player = player;
         this.opponent = opponent;
-        this.MyHand = new Queue ();
-        this.MyBoard = new Queue ();
-        this.EnemyBoard = new Queue ();
+        this.MyHand = new List<Card> ();
+        this.MyBoard = new List<Unit> ();
+        this.EnemyBoard = new List<Unit> ();
     }
 
     public GameState (GameState State) {
+        this.Commands = State.Commands;
         this.player = new PlayerStats (State.player);
         this.opponent = new PlayerStats (State.opponent);
-        Queue MyHand = new Queue (State.MyHand);
-        Queue MyBoard = new Queue (State.MyBoard);
-        Queue EnemyBoard = new Queue (State.EnemyBoard);
-        EvalState ();
+        this.MyHand = new List<Card> (State.MyHand);
+        this.MyBoard = new List<Unit> (State.MyBoard);
+        this.EnemyBoard = new List<Unit> (State.EnemyBoard);
     }
 
     public void EvalState () {
-        float multiplier = 0.3f;
+        double multiplier = 0.5f;
 
         if (player.Health <= 0) {
-            Rating = -float.MaxValue;
+            Rating = -double.MaxValue;
         } else if (opponent.Health <= 0) {
-            Rating = float.MaxValue;
+            Rating = double.MaxValue;
         } else {
-            float eval = player.Health - opponent.Health;
+            double eval = player.Health - opponent.Health;
 
-            if (EnemyBoard != null) {
-                foreach (Unit unit in EnemyBoard) {
-                    eval -= unit.Attack * multiplier + unit.Defense * multiplier;
-                }
+            foreach (Unit enemy in EnemyBoard) {
+                eval -= (enemy.Attack + enemy.Defense) * multiplier;
             }
 
-            if (MyBoard != null) {
-                foreach (Unit unit in MyBoard) {
-                    eval += unit.Attack * multiplier + unit.Defense * multiplier;
-                }
+            foreach (Unit unit in MyBoard) {
+                eval += (unit.Attack + unit.Defense) * multiplier;
+
             }
             Rating = eval;
         }
+    }
+
+    public bool Equals (GameState State) {
+        if (this.Rating != State.Rating) {
+            return false;
+        }
+        if (this.Commands.Length == State.Commands.Length) {
+            List<string> orders1 = new List<string> (this.Commands.Split (';'));
+            List<string> orders2 = new List<string> (State.Commands.Split (';'));
+            bool value;
+            foreach (string item1 in orders1) {
+                value = false;
+                foreach (string item2 in orders2) {
+                    if (item1 == item2) {
+                        value = true;
+                        break;
+                    }
+                }
+                if (!value) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -561,20 +708,24 @@ class Player {
         GameDataBase GameBase = new GameDataBase ();
         GameState State;
         Best BestPlays = new Best ();
+        Rate (DataBase);
 
         // GameLoop
         while (true) {
-            Globals.startTime = DateTime.Now;
+
             State = new GameState (new PlayerStats (Console.ReadLine ().Split (' ')),
                 new PlayerStats (Console.ReadLine ().Split (' ')));
             State.opponent.setHand (int.Parse (Console.ReadLine ()));
+
+            Globals.startTime = new Stopwatch ();
+            Globals.startTime.Start ();
 
             int CardCount = int.Parse (Console.ReadLine ());
 
             // Draft 
             if (State.player.Mana == 0) {
 
-                GameBase.DraftPicks.Add (new Pick (GameBase.GameCards,
+                GameBase.DraftPicks.Add (new Pick (GameBase,
                     new Card (Console.ReadLine ().Split (' ')),
                     new Card (Console.ReadLine ().Split (' ')),
                     new Card (Console.ReadLine ().Split (' '))));
@@ -588,21 +739,19 @@ class Player {
 
                     switch (card.Location) {
                         case -1:
-                            State.EnemyBoard.Enqueue (new Unit (card, true));
+                            State.EnemyBoard.Add (new Unit (card, true));
                             break;
                         case 0:
-                            State.MyHand.Enqueue (card);
+                            State.MyHand.Add (card);
                             break;
                         case 1:
-                            State.MyBoard.Enqueue (new Unit (card, true));
+                            State.MyBoard.Add (new Unit (card, true));
                             break;
                         default:
                             Console.Error.WriteLine ("Data loading error ##########1");
                             break;
                     }
                 }
-                Console.Error.WriteLine ((DateTime.Now - Globals.startTime).Milliseconds);
-
                 BestPlays.Clear ();
                 State.EvalState ();
 
@@ -615,8 +764,15 @@ class Player {
 
     static void SearchAll (GameState State, Best BestPlays) {
         BestPlays.AddPlay (State);
-        Console.Error.WriteLine ((DateTime.Now - Globals.startTime).Milliseconds);
-        if ((DateTime.Now - Globals.startTime).Milliseconds < Globals.maxTurnTime) {
+        if (Globals.actMillis != Globals.startTime.ElapsedMilliseconds) {
+            Globals.actMillis = (int) Globals.startTime.ElapsedMilliseconds;
+#if DEBUG
+            if (Globals.actMillis % 10 == 0) {
+                Console.Error.WriteLine ("Millis:" + Globals.actMillis);
+            }
+#endif
+        }
+        if (Globals.actMillis < Globals.maxTurnTime) {
 
             List<Action> PotencialActions = new List<Action> ();
             List<Action> Actions = new List<Action> ();
@@ -636,13 +792,13 @@ class Player {
                         PotencialActions.Add (new Action (3, card.Id, unit.Id, null, card, unit));
                     }
                 } else if (card.Type == 2) {
-                    foreach (Unit unit in State.EnemyBoard) {
-                        PotencialActions.Add (new Action (3, card.Id, unit.Id, null, card, unit));
+                    foreach (Unit enemy in State.EnemyBoard) {
+                        PotencialActions.Add (new Action (3, card.Id, enemy.Id, null, card, enemy));
                     }
                 } else if (card.Type == 3) {
                     if (card.Defense != 0) {
-                        foreach (Unit unit in State.EnemyBoard) {
-                            PotencialActions.Add (new Action (3, card.Id, unit.Id, null, card, unit));
+                        foreach (Unit enemy in State.EnemyBoard) {
+                            PotencialActions.Add (new Action (3, card.Id, enemy.Id, null, card, enemy));
                         }
                     }
                     PotencialActions.Add (new Action (3, card.Id, -1, null, card, null));
@@ -654,19 +810,32 @@ class Player {
                 if (action.IsValid) {
                     action.Resolve ();
                     Actions.Add (action);
-                    Console.Error.WriteLine ("----------");
-                    Console.Error.Write ("Type:" + action.TypeToString ());
-                    Console.Error.WriteLine (" " + action.Id1 + " " + action.Id2);
                 }
             }
+#if DEBUG
+            // Console.Error.WriteLine ("Commands: " + State.Commands);
+            // Console.Error.WriteLine ("State.Rating: " + State.Rating);
+            // Console.Error.WriteLine ("ValidA.Count: " + Actions.Count);
+            // Console.Error.WriteLine ("+++++");
+#endif
 
             foreach (Action action in Actions) {
                 GameState NewState = new GameState (State);
                 PerformAction (action, NewState);
+                NewState.EvalState ();
+                bool value = false;
+                foreach (GameState item in BestPlays.Plays) {
+                    if (item.Equals (NewState)) {
+                        value = true;
+                    }
+                }
+                if (value) {
+                    break;
+                }
                 SearchAll (NewState, BestPlays);
             }
         } else {
-            Console.Error.WriteLine ("Excaping timelimit !!!!!!!!!!");
+            Console.Error.WriteLine ("Excaping timelimit !!!!!");
         }
     }
 
@@ -717,18 +886,14 @@ class Player {
         if (State.Commands != "") {
             State.Commands += "; ";
         }
-
         switch (action.Type) {
 
             case 1: // SUMMON
                 State.Commands += "SUMMON " + action.CardRef.Id;
 
-                State.MyBoard.Enqueue (action.Result.NewAttacker);
+                State.MyBoard.Add (action.Result.NewAttacker);
                 State.player.Mana -= action.CardRef.Cost;
-                while (State.MyHand.Peek () != action.CardRef) {
-                    State.MyHand.Enqueue (State.MyHand.Dequeue ());
-                }
-                State.MyHand.Dequeue ();
+                State.MyHand.Remove (action.CardRef);
                 break;
 
             case 2: // ATTACK
@@ -742,28 +907,21 @@ class Player {
                 State.player.Health += action.Result.AttackerHealthChange;
                 State.opponent.Health += action.Result.DefenderHealthChange;
                 if (action.Id2 != -1) {
-                    while (State.EnemyBoard.Peek () != action.TargetRef) {
-                        State.MyBoard.Enqueue (State.EnemyBoard.Dequeue ());
-                    }
-                    State.EnemyBoard.Dequeue ();
-
+                    State.EnemyBoard.Remove (action.TargetRef);
                     if (!action.Result.DefenderDied) {
-                        State.EnemyBoard.Enqueue (action.Result.NewDefender);
+                        State.EnemyBoard.Add (action.Result.NewDefender);
                     }
                 }
-                while (State.MyBoard.Peek () != action.UnitRef) {
-                    State.MyBoard.Enqueue (State.MyBoard.Dequeue ());
-                }
-                State.MyBoard.Dequeue ();
-
+                State.MyBoard.Remove (action.UnitRef);
                 if (!action.Result.AttackerDied) {
-                    State.MyBoard.Enqueue (action.Result.NewAttacker);
+                    State.MyBoard.Add (action.Result.NewAttacker);
                 }
 
                 break;
 
             case 3: // USE
                 State.Commands += "USE " + action.CardRef.Id + " ";
+                State.player.Mana -= action.CardRef.Cost;
                 if (action.TargetRef == null) {
                     State.Commands += -1;
                 } else {
@@ -773,17 +931,15 @@ class Player {
                 if (action.CardRef.Type == 1) { //Green
 
                     State.player.Health += action.Result.AttackerHealthChange;
-                    State.MyBoard.Enqueue (action.Result.NewTargetRef);
+                    State.MyBoard.Remove (action.UnitRef);
+                    State.MyBoard.Add (action.Result.NewTargetRef);
 
                 } else if (action.CardRef.Type == 2) { //Red
 
                     State.opponent.Health += action.Result.DefenderHealthChange;
-                    while (State.EnemyBoard.Peek () != action.TargetRef) {
-                        State.EnemyBoard.Enqueue (State.EnemyBoard.Dequeue ());
-                    }
-                    State.EnemyBoard.Dequeue ();
+                    State.EnemyBoard.Remove (action.TargetRef);
                     if (!action.Result.DefenderDied) {
-                        State.EnemyBoard.Enqueue (action.Result.NewTargetRef);
+                        State.EnemyBoard.Add (action.Result.NewTargetRef);
                     }
 
                 } else { // Blue
@@ -791,27 +947,62 @@ class Player {
                     State.player.Health += action.Result.AttackerHealthChange;
                     State.opponent.Health += action.Result.DefenderHealthChange;
                     if (action.Result.NewTargetRef != null) {
-
-                        while (State.EnemyBoard.Peek () != action.TargetRef) {
-                            State.EnemyBoard.Enqueue (State.EnemyBoard.Dequeue ());
-                        }
-                        State.EnemyBoard.Dequeue ();
-
+                        State.EnemyBoard.Remove (action.TargetRef);
                         if (!action.Result.DefenderDied) {
-                            State.EnemyBoard.Enqueue (action.Result.NewTargetRef);
+                            State.EnemyBoard.Add (action.Result.NewTargetRef);
                         }
                     }
 
                 }
-                while (State.MyHand.Peek () != action.CardRef) {
-                    State.MyHand.Enqueue (State.MyHand.Dequeue ());
-                }
-                State.MyHand.Dequeue ();
+                State.MyHand.Remove (action.CardRef);
                 break;
 
             default:
                 Console.Error.WriteLine ("Perform error ##########1");
                 break;
+        }
+    }
+    static void Rate (CardDataBase CDB) {
+        foreach (CardData card in CDB.AllCards) {
+            card.Rating = 0;
+            if (card.Type == 0 ||
+                card.Type == 1) {
+                card.Rating += (card.Attack + card.Defense) * 1;
+            } else {
+                card.Rating -= (card.Attack + card.Defense) * 1;
+            }
+            card.Rating -= 2 * card.Cost;
+            card.Rating += 1 * card.CardDraw;
+            card.Rating += (card.MyHealthChange - card.OppHealthChange) * 1;
+            if (card.Abilities.HasBreakthrough) {
+                card.Rating += 1;
+            }
+            if (card.Abilities.HasCharge) {
+                card.Rating += 1;
+            }
+            if (card.Abilities.HasDrain) {
+                card.Rating += 1;
+            }
+            if (card.Abilities.HasGuard) {
+                card.Rating += 1;
+            }
+            if (card.Abilities.HasLethal) {
+                card.Rating += 1;
+            }
+            if (card.Abilities.HasWard) {
+                card.Rating += 1;
+            }
+        }
+        var SORT = from card in CDB.AllCards
+        orderby card.Rating descending
+        select card;
+        foreach (CardData card in SORT) {
+            Console.Error.WriteLine (card.CardNumber + "   " + card.Type);
+            Console.Error.WriteLine (card.Cost + "  " + card.Attack + "/" + card.Defense);
+            Console.Error.WriteLine (card.Abilities.toString ());
+            Console.Error.WriteLine (card.MyHealthChange + "/" + card.OppHealthChange + "  " + "DRAW " + card.CardDraw);
+            Console.Error.WriteLine ("Rating: " + card.Rating);
+            Console.Error.WriteLine ("**********");
         }
     }
 }
